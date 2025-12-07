@@ -1,0 +1,17 @@
+__pycache__
+.secrets/api.json
+.secrets/season
+season/
+.season
+deploy.sh
+tacticusplanner
+.secrets/playerData/
+.secrets/playerids.json
+.secrets/playerunits.json
+.secrets/inventory.json
+discord.json
+.secrets/summary.json
+.secrets/.gw*
+guildwars.json
+movement.json
+config.json

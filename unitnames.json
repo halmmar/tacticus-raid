@@ -1,0 +1,992 @@
+{
+    "mows": [
+        "astraOrdnanceBattery",
+        "blackForgefiend",
+        "deathCrawler",
+        "tauBroadside",
+        "tyranBiovore",
+        "ultraDreadnought"
+    ],
+    "names": {
+        "adeptCanoness": {
+            "abilities": [
+                "BrazierOfHolyFire",
+                "CondemnorStake"
+            ],
+            "faction": "Sisterhood",
+            "grandAlliance": "Imperial",
+            "name": "Roswitha"
+        },
+        "adeptCelestine": {
+            "abilities": [
+                "SkyStrike",
+                "GeminaeSuperia"
+            ],
+            "faction": "Sisterhood",
+            "grandAlliance": "Imperial",
+            "name": "Celestine"
+        },
+        "adeptExorcist": {
+            "abilities": [
+                "ThriceBlessedConflagration",
+                "DevastatingRefrain",
+                "ShieldOfFaith"
+            ],
+            "faction": "Sisterhood",
+            "grandAlliance": "Imperial",
+            "name": "Exorcist"
+        },
+        "adeptHospitaller": {
+            "abilities": [
+                "RitesOfRestoration",
+                "MedicusMinistorum"
+            ],
+            "faction": "Sisterhood",
+            "grandAlliance": "Imperial",
+            "name": "Isabella"
+        },
+        "adeptMorvenn": {
+            "abilities": [
+                "SanctorumMissile",
+                "RighteousRepugnance"
+            ],
+            "faction": "Sisterhood",
+            "grandAlliance": "Imperial",
+            "name": "Morvenn Vahl"
+        },
+        "adeptRetributor": {
+            "abilities": [
+                "ArmoriumCherub",
+                "FireOfAbsolution"
+            ],
+            "faction": "Sisterhood",
+            "grandAlliance": "Imperial",
+            "name": "Vindicta"
+        },
+        "admecDestroyer": {
+            "abilities": [
+                "SentinelDirectives",
+                "HeavyGravCannon"
+            ],
+            "faction": "AdeptusMechanicus",
+            "grandAlliance": "Imperial",
+            "name": "Sy-gex"
+        },
+        "admecDominus": {
+            "abilities": [
+                "RadBombardment",
+                "MasterAnnihilator"
+            ],
+            "faction": "AdeptusMechanicus",
+            "grandAlliance": "Imperial",
+            "name": "Vitruvius"
+        },
+        "admecManipulus": {
+            "abilities": [
+                "DefendTheDivineWork",
+                "GalvanicField"
+            ],
+            "faction": "AdeptusMechanicus",
+            "grandAlliance": "Imperial",
+            "name": "Actus"
+        },
+        "admecMarshall": {
+            "abilities": [
+                "DoctrinaImperatives",
+                "ControlEdict"
+            ],
+            "faction": "AdeptusMechanicus",
+            "grandAlliance": "Imperial",
+            "name": "Tan Gi'da"
+        },
+        "admecRuststalker": {
+            "abilities": [
+                "CordClaw",
+                "OptimizedGait"
+            ],
+            "faction": "AdeptusMechanicus",
+            "grandAlliance": "Imperial",
+            "name": "Exitor-Rho"
+        },
+        "astraBullgryn": {
+            "abilities": [
+                "FragBomb",
+                "AvalancheOfMuscle"
+            ],
+            "faction": "AstraMilitarum",
+            "grandAlliance": "Imperial",
+            "name": "Kut"
+        },
+        "astraCreed": {
+            "abilities": [
+                "SupremeCommander",
+                "SwornProtector"
+            ],
+            "faction": "AstraMilitarum",
+            "grandAlliance": "Imperial",
+            "name": "Creed"
+        },
+        "astraDreir": {
+            "abilities": [
+                "LeadingTheCharge",
+                "ToughToKill"
+            ],
+            "faction": "AstraMilitarum",
+            "grandAlliance": "Imperial",
+            "name": "Dreir"
+        },
+        "astraOrdnance": {
+            "abilities": [
+                "BasiliskBarrage",
+                "SpotterReworked"
+            ],
+            "faction": "AstraMilitarum",
+            "grandAlliance": "Imperial",
+            "name": "Thaddeus"
+        },
+        "astraOrdnanceBattery": {
+            "abilities": [
+                "MalleusRocketLauncher",
+                "ForwardSpotter",
+                "OnMyPosition"
+            ],
+            "faction": "AstraMilitarum",
+            "grandAlliance": "Imperial",
+            "name": "Malleus Rocket Launcher"
+        },
+        "astraPrimarisPsy": {
+            "abilities": [
+                "PsychicMaelstrom",
+                "Nightshroud"
+            ],
+            "faction": "AstraMilitarum",
+            "grandAlliance": "Imperial",
+            "name": "Sibyll"
+        },
+        "astraYarrick": {
+            "abilities": [
+                "SendInTheNextWave",
+                "SummaryExecution"
+            ],
+            "faction": "AstraMilitarum",
+            "grandAlliance": "Imperial",
+            "name": "Yarrick"
+        },
+        "blackAbaddon": {
+            "abilities": [
+                "Drachnyen",
+                "FirstAmongTraitors"
+            ],
+            "faction": "BlackLegion",
+            "grandAlliance": "Chaos",
+            "name": "Abaddon"
+        },
+        "blackForgefiend": {
+            "abilities": [
+                "HadesAutocannons",
+                "DaemonicOrdnance",
+                "ContemptuousDisregard"
+            ],
+            "faction": "BlackLegion",
+            "grandAlliance": "Chaos",
+            "name": "Forgefiend"
+        },
+        "blackHaarken": {
+            "abilities": [
+                "HeraldOfTheApocalypse",
+                "HeadClaimer"
+            ],
+            "faction": "BlackLegion",
+            "grandAlliance": "Chaos",
+            "name": "Haarken"
+        },
+        "blackObliterator": {
+            "abilities": [
+                "FrenziedFiring",
+                "FleshmetalGuns"
+            ],
+            "faction": "BlackLegion",
+            "grandAlliance": "Chaos",
+            "name": "Volk"
+        },
+        "blackPossession": {
+            "abilities": [
+                "Incursion",
+                "Possession"
+            ],
+            "faction": "BlackLegion",
+            "grandAlliance": "Chaos",
+            "name": "Archimatos"
+        },
+        "blackTerminator": {
+            "abilities": [
+                "BringerOfDespair",
+                "HatefulAssault"
+            ],
+            "faction": "BlackLegion",
+            "grandAlliance": "Chaos",
+            "name": "Angrax"
+        },
+        "bloodDante": {
+            "abilities": [
+                "LightOfSanguinius",
+                "LordOfTheHost"
+            ],
+            "faction": "BloodAngels",
+            "grandAlliance": "Imperial",
+            "name": "Dante"
+        },
+        "bloodDeathCompany": {
+            "abilities": [
+                "BlackRage",
+                "VisionsOfHeresy"
+            ],
+            "faction": "BloodAngels",
+            "grandAlliance": "Imperial",
+            "name": "Lucien"
+        },
+        "bloodIntercessor": {
+            "abilities": [
+                "HammerOfWrath",
+                "AggressiveOnslaught"
+            ],
+            "faction": "BloodAngels",
+            "grandAlliance": "Imperial",
+            "name": "Mataneo"
+        },
+        "bloodMephiston": {
+            "abilities": [
+                "TheQuickening",
+                "FuryOfTheAncients"
+            ],
+            "faction": "BloodAngels",
+            "grandAlliance": "Imperial",
+            "name": "Mephiston"
+        },
+        "bloodSanguinary": {
+            "abilities": [
+                "BloodChalice",
+                "SanguinaryPriest"
+            ],
+            "faction": "BloodAngels",
+            "grandAlliance": "Imperial",
+            "name": "Nicodemus"
+        },
+        "custoAtlacoya": {
+            "abilities": [
+                "TalonsOfTheEmperor",
+                "DaughterOfTheAbyss"
+            ],
+            "faction": "Custodes",
+            "grandAlliance": "Imperial",
+            "name": "Atlacoya"
+        },
+        "custoBladeChampion": {
+            "abilities": [
+                "MartialInspiration",
+                "LegacyOfCombat"
+            ],
+            "faction": "Custodes",
+            "grandAlliance": "Imperial",
+            "name": "Kariyan"
+        },
+        "custoKyrus": {
+            "abilities": [
+                "VigilanceEternal",
+                "UnwaveringSentinel"
+            ],
+            "faction": "Custodes",
+            "grandAlliance": "Imperial",
+            "name": "Tyrith"
+        },
+        "custoTrajann": {
+            "abilities": [
+                "MomentShackle",
+                "LegendaryCommander"
+            ],
+            "faction": "Custodes",
+            "grandAlliance": "Imperial",
+            "name": "Trajann"
+        },
+        "custoVexilusPraetor": {
+            "abilities": [
+                "VexillaMagnifica",
+                "StandVigil"
+            ],
+            "faction": "Custodes",
+            "grandAlliance": "Imperial",
+            "name": "Aesoth"
+        },
+        "darkaAsmodai": {
+            "abilities": [
+                "ExemplarOfHate",
+                "FearedInterrogator"
+            ],
+            "faction": "DarkAngels",
+            "grandAlliance": "Imperial",
+            "name": "Asmodai"
+        },
+        "darkaAzrael": {
+            "abilities": [
+                "DarkTalonStrike",
+                "LionHelm"
+            ],
+            "faction": "DarkAngels",
+            "grandAlliance": "Imperial",
+            "name": "Azrael"
+        },
+        "darkaCompanion": {
+            "abilities": [
+                "CalibaniteGreatsword",
+                "EnmityForTheUnworthy"
+            ],
+            "faction": "DarkAngels",
+            "grandAlliance": "Imperial",
+            "name": "Forcas"
+        },
+        "darkaHellblaster": {
+            "abilities": [
+                "Supercharge",
+                "GrimRetribution"
+            ],
+            "faction": "DarkAngels",
+            "grandAlliance": "Imperial",
+            "name": "Sarquael"
+        },
+        "darkaTerminator": {
+            "abilities": [
+                "PlasmaCannon",
+                "Deathwing"
+            ],
+            "faction": "DarkAngels",
+            "grandAlliance": "Imperial",
+            "name": "Baraqiel"
+        },
+        "deathBlightbringer": {
+            "abilities": [
+                "Poxwalkers",
+                "CursedPlagueBell"
+            ],
+            "faction": "DeathGuard",
+            "grandAlliance": "Chaos",
+            "name": "Corrodius"
+        },
+        "deathBlightlord": {
+            "abilities": [
+                "FlailSwing",
+                "HazeOfCorruption"
+            ],
+            "faction": "DeathGuard",
+            "grandAlliance": "Chaos",
+            "name": "Maladus"
+        },
+        "deathCrawler": {
+            "abilities": [
+                "EntropyCannons",
+                "PlagueburstMortar",
+                "BlightedLand"
+            ],
+            "faction": "DeathGuard",
+            "grandAlliance": "Chaos",
+            "name": "Plagueburst Crawler"
+        },
+        "deathPutrifier": {
+            "abilities": [
+                "FoulInfusion",
+                "ExplosiveMaladies"
+            ],
+            "faction": "DeathGuard",
+            "grandAlliance": "Chaos",
+            "name": "Pestillian"
+        },
+        "deathRotbone": {
+            "abilities": [
+                "RevitalizingMalignancy",
+                "TaintedNarthecium"
+            ],
+            "faction": "DeathGuard",
+            "grandAlliance": "Chaos",
+            "name": "Nauseous"
+        },
+        "deathTyphus": {
+            "abilities": [
+                "PlagueWind",
+                "DestroyerHive"
+            ],
+            "faction": "DeathGuard",
+            "grandAlliance": "Chaos",
+            "name": "Typhus"
+        },
+        "eldarAutarch": {
+            "abilities": [
+                "Loki_SwoopingHawk",
+                "PathOfCommand"
+            ],
+            "faction": "Aeldari",
+            "grandAlliance": "Xenos",
+            "name": "Aethana"
+        },
+        "eldarFarseer": {
+            "abilities": [
+                "Executioner",
+                "Doom"
+            ],
+            "faction": "Aeldari",
+            "grandAlliance": "Xenos",
+            "name": "Eldryon"
+        },
+        "eldarJainZar": {
+            "abilities": [
+                "SilentDeath",
+                "TerrorsLament"
+            ],
+            "faction": "Aeldari",
+            "grandAlliance": "Xenos",
+            "name": "Jain Zar"
+        },
+        "eldarMauganRa": {
+            "abilities": [
+                "HarvesterOfSouls",
+                "InescapableAccuracy"
+            ],
+            "faction": "Aeldari",
+            "grandAlliance": "Xenos",
+            "name": "Maugan Ra"
+        },
+        "eldarRanger": {
+            "abilities": [
+                "FireAndReposition",
+                "WireweaveNet"
+            ],
+            "faction": "Aeldari",
+            "grandAlliance": "Xenos",
+            "name": "Calandis"
+        },
+        "emperKakophonist": {
+            "abilities": [
+                "DoomSiren",
+                "ObsessiveAnnunciation"
+            ],
+            "faction": "EmperorsChildren",
+            "grandAlliance": "Chaos",
+            "name": "Adamatar"
+        },
+        "emperLucius": {
+            "abilities": [
+                "LashOfTorment",
+                "ArmourOfShriekingSouls"
+            ],
+            "faction": "EmperorsChildren",
+            "grandAlliance": "Chaos",
+            "name": "Lucius"
+        },
+        "emperNoiseMarine": {
+            "abilities": [
+                "ExcruciatingFrequencies",
+                "TerrifyingCrescendo"
+            ],
+            "faction": "EmperorsChildren",
+            "grandAlliance": "Chaos",
+            "name": "Shiron"
+        },
+        "genesBiophagus": {
+            "abilities": [
+                "AberrantHypermorph",
+                "TwistedScience"
+            ],
+            "faction": "Genestealers",
+            "grandAlliance": "Xenos",
+            "name": "Hollan"
+        },
+        "genesKelermorph": {
+            "abilities": [
+                "HeroicFusillade",
+                "HypersensoryAbilities"
+            ],
+            "faction": "Genestealers",
+            "grandAlliance": "Xenos",
+            "name": "Judh"
+        },
+        "genesMagus": {
+            "abilities": [
+                "MindControl",
+                "SpiritualLeader"
+            ],
+            "faction": "Genestealers",
+            "grandAlliance": "Xenos",
+            "name": "Xybia"
+        },
+        "genesPatriarch": {
+            "abilities": [
+                "MightFromBelow",
+                "CosmicHorror"
+            ],
+            "faction": "Genestealers",
+            "grandAlliance": "Xenos",
+            "name": "The Patermine"
+        },
+        "genesPrimus": {
+            "abilities": [
+                "CultDemagogue",
+                "DecoysAndMisdirection"
+            ],
+            "faction": "Genestealers",
+            "grandAlliance": "Xenos",
+            "name": "Isaak"
+        },
+        "necroDestroyer": {
+            "abilities": [
+                "MultiThreatEliminator",
+                "InescapableDeath"
+            ],
+            "faction": "Necrons",
+            "grandAlliance": "Xenos",
+            "name": "Imospekh"
+        },
+        "necroOverlord": {
+            "abilities": [
+                "ResurrectionOrb",
+                "MartialApotheosis"
+            ],
+            "faction": "Necrons",
+            "grandAlliance": "Xenos",
+            "name": "Anuphet"
+        },
+        "necroPlasmancer": {
+            "abilities": [
+                "HarbingerOfDestruction",
+                "LivingLightning"
+            ],
+            "faction": "Necrons",
+            "grandAlliance": "Xenos",
+            "name": "Thutmose"
+        },
+        "necroSpyder": {
+            "abilities": [
+                "ScarabHive",
+                "FabricatorClawArray"
+            ],
+            "faction": "Necrons",
+            "grandAlliance": "Xenos",
+            "name": "Aleph-Null"
+        },
+        "necroWarden": {
+            "abilities": [
+                "AdaptiveStrategy",
+                "RelentlessMarch"
+            ],
+            "faction": "Necrons",
+            "grandAlliance": "Xenos",
+            "name": "Makhotep"
+        },
+        "orksBigMek": {
+            "abilities": [
+                "GrotTank",
+                "KustomForceField"
+            ],
+            "faction": "Orks",
+            "grandAlliance": "Xenos",
+            "name": "Gibbascrapz"
+        },
+        "orksKillaKan": {
+            "abilities": [
+                "DakkaDakkaDakka",
+                "PowerTrip"
+            ],
+            "faction": "Orks",
+            "grandAlliance": "Xenos",
+            "name": "Snappawrecka"
+        },
+        "orksNob": {
+            "abilities": [
+                "UnstoppableMomentumReworked",
+                "SmashaEad"
+            ],
+            "faction": "Orks",
+            "grandAlliance": "Xenos",
+            "name": "Tanksmasha"
+        },
+        "orksRukkatrukk": {
+            "abilities": [
+                "SquigLaunchas",
+                "SquigMine",
+                "MoreGitzOverEre"
+            ],
+            "faction": "Orks",
+            "grandAlliance": "Xenos",
+            "name": "Rukkatrukk"
+        },
+        "orksRuntherd": {
+            "abilities": [
+                "GetEmRuntz",
+                "SquigHound"
+            ],
+            "faction": "Orks",
+            "grandAlliance": "Xenos",
+            "name": "Snotflogga"
+        },
+        "orksWarboss": {
+            "abilities": [
+                "Waaagh",
+                "LightImUp"
+            ],
+            "faction": "Orks",
+            "grandAlliance": "Xenos",
+            "name": "Gulgortz"
+        },
+        "spaceBlackmane": {
+            "abilities": [
+                "WarHowl",
+                "SagaOfTheWarriorBorn"
+            ],
+            "faction": "SpaceWolves",
+            "grandAlliance": "Imperial",
+            "name": "Ragnar"
+        },
+        "spaceHound": {
+            "abilities": [
+                "GrapnelLauncher",
+                "HuntersBeyondDeath"
+            ],
+            "faction": "SpaceWolves",
+            "grandAlliance": "Imperial",
+            "name": "Tjark"
+        },
+        "spaceRockfist": {
+            "abilities": [
+                "Foehammer",
+                "AnvilShield"
+            ],
+            "faction": "SpaceWolves",
+            "grandAlliance": "Imperial",
+            "name": "Arjac"
+        },
+        "spaceStormcaller": {
+            "abilities": [
+                "Stormcaller",
+                "LordOfTempests"
+            ],
+            "faction": "SpaceWolves",
+            "grandAlliance": "Imperial",
+            "name": "Njal"
+        },
+        "spaceWulfen": {
+            "abilities": [
+                "GreatFrostAxe",
+                "SavageKiller"
+            ],
+            "faction": "SpaceWolves",
+            "grandAlliance": "Imperial",
+            "name": "Ulf"
+        },
+        "tauAunShi": {
+            "abilities": [
+                "InspiredToGreatness",
+                "SereneUnifier"
+            ],
+            "faction": "Tau",
+            "grandAlliance": "Xenos",
+            "name": "Aun'Shi"
+        },
+        "tauBroadside": {
+            "abilities": [
+                "HeavyRailRifle",
+                "TwinSmartMissileSystem",
+                "ElectrochaffBackups"
+            ],
+            "faction": "Tau",
+            "grandAlliance": "Xenos",
+            "name": "Tson'ji"
+        },
+        "tauCrisis": {
+            "abilities": [
+                "EarlyWarningOverride",
+                "CyclicIonBlaster"
+            ],
+            "faction": "Tau",
+            "grandAlliance": "Xenos",
+            "name": "Re'vas"
+        },
+        "tauDarkstrider": {
+            "abilities": [
+                "FightingRetreat",
+                "StructuralAnalyser"
+            ],
+            "faction": "Tau",
+            "grandAlliance": "Xenos",
+            "name": "Darkstrider"
+        },
+        "tauMarksman": {
+            "abilities": [
+                "SeekerMissileFrequencyLock",
+                "MV71SniperDroneSquad"
+            ],
+            "faction": "Tau",
+            "grandAlliance": "Xenos",
+            "name": "Sho'syl"
+        },
+        "tauShadowsun": {
+            "abilities": [
+                "ExemplarOfTheKauyon",
+                "DefenderOfTheGreaterGood"
+            ],
+            "faction": "Tau",
+            "grandAlliance": "Xenos",
+            "name": "Shadowsun"
+        },
+        "templAggressor": {
+            "abilities": [
+                "FragstormGrenadeLauncher",
+                "Boltstorm"
+            ],
+            "faction": "BlackTemplars",
+            "grandAlliance": "Imperial",
+            "name": "Burchard"
+        },
+        "templAncient": {
+            "abilities": [
+                "UnbreakableDuty",
+                "AstartesBanner"
+            ],
+            "faction": "BlackTemplars",
+            "grandAlliance": "Imperial",
+            "name": "Thoread"
+        },
+        "templChampion": {
+            "abilities": [
+                "HolyDuel",
+                "MartialSuperiority"
+            ],
+            "faction": "BlackTemplars",
+            "grandAlliance": "Imperial",
+            "name": "Jaeger"
+        },
+        "templHelbrecht": {
+            "abilities": [
+                "CrusadeOfWrath",
+                "DestroyTheWitch"
+            ],
+            "faction": "BlackTemplars",
+            "grandAlliance": "Imperial",
+            "name": "Helbrecht"
+        },
+        "templSwordBrother": {
+            "abilities": [
+                "ThunderousAssault",
+                "ChampionOfTheFeast"
+            ],
+            "faction": "BlackTemplars",
+            "grandAlliance": "Imperial",
+            "name": "Godswyl"
+        },
+        "thousAhriman": {
+            "abilities": [
+                "Doombolt",
+                "PsychicStalk"
+            ],
+            "faction": "ThousandSons",
+            "grandAlliance": "Chaos",
+            "name": "Ahriman"
+        },
+        "thousInfernalMaster": {
+            "abilities": [
+                "MasterOfTheTutelaries",
+                "InfernalPacts"
+            ],
+            "faction": "ThousandSons",
+            "grandAlliance": "Chaos",
+            "name": "Abraxas"
+        },
+        "thousSorcerer": {
+            "abilities": [
+                "AttemptedPossession",
+                "ArcaneShield"
+            ],
+            "faction": "ThousandSons",
+            "grandAlliance": "Chaos",
+            "name": "Thaumachus"
+        },
+        "thousTerminator": {
+            "abilities": [
+                "HellfyreMissileRack",
+                "TimeFlux"
+            ],
+            "faction": "ThousandSons",
+            "grandAlliance": "Chaos",
+            "name": "Toth"
+        },
+        "thousTzaangor": {
+            "abilities": [
+                "SorcerousFacade",
+                "RealityUnbound"
+            ],
+            "faction": "ThousandSons",
+            "grandAlliance": "Chaos",
+            "name": "Yazaghor"
+        },
+        "tyranBiovore": {
+            "abilities": [
+                "BioMinefield",
+                "SporeMineLauncher",
+                "HyperCorrosiveAcid"
+            ],
+            "faction": "Tyranids",
+            "grandAlliance": "Xenos",
+            "name": "Biovore"
+        },
+        "tyranDeathleaper": {
+            "abilities": [
+                "FearOfTheUnseen",
+                "FeederTendrils"
+            ],
+            "faction": "Tyranids",
+            "grandAlliance": "Xenos",
+            "name": "Deathleaper"
+        },
+        "tyranNeurothrope": {
+            "abilities": [
+                "SpiritLeech",
+                "Neuroparasite"
+            ],
+            "faction": "Tyranids",
+            "grandAlliance": "Xenos",
+            "name": "Neurothrope"
+        },
+        "tyranParasite": {
+            "abilities": [
+                "ItItches",
+                "BarbedOvipositor"
+            ],
+            "faction": "Tyranids",
+            "grandAlliance": "Xenos",
+            "name": "Parasite of Mortrex"
+        },
+        "tyranTyrantGuard": {
+            "abilities": [
+                "CrushingClaws",
+                "GuardianOrganism"
+            ],
+            "faction": "Tyranids",
+            "grandAlliance": "Xenos",
+            "name": "Tyrant Guard"
+        },
+        "tyranWingedPrime": {
+            "abilities": [
+                "AlphaWarrior",
+                "SynapticLinchpin"
+            ],
+            "faction": "Tyranids",
+            "grandAlliance": "Xenos",
+            "name": "Winged Prime"
+        },
+        "ultraApothecary": {
+            "abilities": [
+                "CombatRestoratives",
+                "Narthecium"
+            ],
+            "faction": "Ultramarines",
+            "grandAlliance": "Imperial",
+            "name": "Incisus"
+        },
+        "ultraCalgar": {
+            "abilities": [
+                "GauntletsOfUltramar",
+                "RitesOfBattle"
+            ],
+            "faction": "Ultramarines",
+            "grandAlliance": "Imperial",
+            "name": "Calgar"
+        },
+        "ultraDreadnought": {
+            "abilities": [
+                "DutyEternal",
+                "MacroPlasmaIncinerator",
+                "WisdomOfTheAncients"
+            ],
+            "faction": "Ultramarines",
+            "grandAlliance": "Imperial",
+            "name": "Galatian"
+        },
+        "ultraEliminatorSgt": {
+            "abilities": [
+                "MortisRound",
+                "CamoCloak"
+            ],
+            "faction": "Ultramarines",
+            "grandAlliance": "Imperial",
+            "name": "Certus"
+        },
+        "ultraInceptorSgt": {
+            "abilities": [
+                "DeathFromAbove",
+                "ShockAssault"
+            ],
+            "faction": "Ultramarines",
+            "grandAlliance": "Imperial",
+            "name": "Bellator"
+        },
+        "ultraTigurius": {
+            "abilities": [
+                "StormOfWrath",
+                "PsychicFortress"
+            ],
+            "faction": "Ultramarines",
+            "grandAlliance": "Imperial",
+            "name": "Tigurius"
+        },
+        "ultraTitus": {
+            "abilities": [
+                "TacticalPrecision",
+                "FuelledByFury"
+            ],
+            "faction": "Ultramarines",
+            "grandAlliance": "Imperial",
+            "name": "Titus"
+        },
+        "worldEightbound": {
+            "abilities": [
+                "OverwhelmingWrath",
+                "BeaconOfRage"
+            ],
+            "faction": "WorldEaters",
+            "grandAlliance": "Chaos",
+            "name": "Azkor"
+        },
+        "worldExecutions": {
+            "abilities": [
+                "MurderousSwing",
+                "TrophyTaker"
+            ],
+            "faction": "WorldEaters",
+            "grandAlliance": "Chaos",
+            "name": "Tarvakh"
+        },
+        "worldJakhal": {
+            "abilities": [
+                "JakhalStimms",
+                "Skullsmasher"
+            ],
+            "faction": "WorldEaters",
+            "grandAlliance": "Chaos",
+            "name": "Macer"
+        },
+        "worldKharn": {
+            "abilities": [
+                "KillMaimBurn",
+                "TheBetrayer"
+            ],
+            "faction": "WorldEaters",
+            "grandAlliance": "Chaos",
+            "name": "Kharn"
+        },
+        "worldTerminator": {
+            "abilities": [
+                "BloodyFury",
+                "WrathfulDevotion"
+            ],
+            "faction": "WorldEaters",
+            "grandAlliance": "Chaos",
+            "name": "Wrask"
+        }
+    }
+}

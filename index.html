@@ -1,0 +1,279 @@
+<html>
+<head>
+    <script src="tacticusraid.js">
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        .tokenTable {
+            border-collapse: collapse;
+        }
+        .tokenTable td {
+            text-align: right;
+            padding-left: 3px;
+            padding-right: 3px;
+        }
+        .tokenTable .name {
+            text-align: left;
+        }
+        .tokenTable tr:last-child td {
+            border-top: solid;
+        }
+        .bossTable {
+            padding: 3pt;
+            float: left;
+        }
+        .midseasonMove {
+            text-decoration: dotted underline;
+        }
+        .oldHit {
+            text-decoration: dotted underline;
+        }
+        .name {
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .bossTable .damage {
+            width: 72px;
+        }
+        .bossTable .power {
+            width: 50px;
+        }
+        .bossTable .units {
+            width: 120px;
+        }
+        .bossTable tr td:is(.damage, .power) {
+            text-align: right;
+        }
+        .unitThumbnail {
+            height: 18px;
+            width: 18px;
+            object-fit: contain;
+        }
+        .stars {
+            text-align: center;
+        }
+        .smallStar {
+            height: 10px;
+        }
+        .bigStar {
+            height: 15px;
+        }
+        .rosterTable {
+            width: 666px;
+            padding: 5pt;
+            border-collapse: collapse;
+        }
+        .rosterTable .headerRow {
+            border-bottom: solid;
+        }
+        .rosterTable .name {
+            border-left: solid;
+            border-right: solid;
+        }
+        .rosterTable .damage {
+            width: 60px;
+        }
+        .rosterTable .count {
+            width: 25px;
+            border-right: solid;
+            padding-right: 5px;
+        }
+        td:is(.damage, .count) {
+            text-align: right;
+        }
+        .rosterTable tr:last-child {
+            border-bottom: solid;
+        }
+        .bossEveryoneTable {
+            max-width: 360px;
+            margin: 5pt;
+            float: left;
+            border-collapse: collapse;
+        }
+        .bossEveryoneTable td {
+            padding-left: 2px;
+            padding-right: 2px;
+        }
+        .bossEveryoneTable .damage {
+            width: 50px;
+        }
+        .bossEveryoneTable .percent {
+            width: 60px;
+        }
+        .bossEveryoneTable tr:last-child {
+            border-top: solid;
+        }
+        .current-boss-status td {
+            text-align: center;
+            border: solid 1px;
+        }
+        #current-boss-status {
+            border: solid;
+            padding-left: 2px;
+            padding-right: 2px;
+        }
+        th a {
+            color: black;
+        }
+        a {
+            text-decoration: none;
+        }
+        .playerStatsTable {
+            clear: left;
+            padding-bottom: 5px;
+        }
+        .playerStatsTable caption {
+            padding-top: 5px;
+        }
+        .weightsTable {
+            width: 400px;
+            float: left;
+        }
+        .weightsTable .percent {
+            width: 60px;
+            text-align: center;
+        }
+        .nameLink {
+            color: black;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+            min-width: 90px;
+            width: 100%;
+        }
+        .kill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            text-align: center;
+            z-index: -1;
+            overflow: hidden;
+        }
+        .relative {
+            position: relative;
+        }
+        .tokenCountTable {
+            font-size: 9pt;
+            padding: 0;
+            margin: 0;
+        }
+        .tokenCount {
+            text-align: right;
+        }
+        .tokenCountTopRow {
+            text-align: center;
+        }
+        .estimate {
+            background-color: lightgray;
+        }
+        .unitName {
+            width: 100px;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        h3 {
+            margin-block-start: 0.2em;
+            margin-block-end: 0.2em;
+        }
+        .warning {
+            background-color: red;
+        }
+        .sleepWarning {
+            background-color: yellow;
+        }
+        .ready {
+            background-color: green;
+        }
+        #upgradeTable {
+            float: left;
+        }
+        #upgradeTable .name {
+            width: 200px;
+        }
+        td a {
+            color: black;
+        }
+        .hourNow {
+            border-left: solid 0.5rem black;
+            border-right: solid 0.5rem black;
+        }
+    </style>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body onLoad="initialize()">
+
+    <select name="guild" id="guildSelect" onchange="javascript:updateGuild();updateSeason().then(updateCurrentView);">
+        <option value="EN">Eternal Nexus</option>
+        <option value="Chaos">Chaos</option>
+        <option value="Imperial">Imperial</option>
+        <option value="Xenos">Xenos</option>
+        <option value="EN,Chaos">EN+C</option>
+        <option value="EN,Chaos,Imperial">EN+C+I</option>
+        <option value="EN,Chaos,Imperial,Xenos">EN+C+I+X</option>
+        <option value="Chaos,Imperial">Chaos+Imp</option>
+        <option value="Imperial,Xenos">Imp+Xeno</option>
+    </select>
+
+    <select name="season" id="seasonSelect" onchange="javascript:updateSeason().then(updateCurrentView);">
+        <option value="0">Current season</option>
+    </select>
+
+    <script id="view-menu-container" type="text/html">
+        <a href="javascript:updateCurrentView('current-status');">Status</a>
+        <a href="javascript:updateCurrentView('laps');">Lap Times</a>
+        <a href="javascript:updateCurrentView('current-top');">Top 5</a>
+        <a id="menu-roster" href="javascript:updateCurrentView('roster');">Roster</a>
+        <a href="javascript:updateCurrentView('bosses');">Bosses</a>
+        <a href="javascript:updateCurrentView('primes');">Primes</a>
+        <a href="javascript:bossVsMode='Avg';updateCurrentView('bosses-weighted');">Weighted</a>
+        <a id="menu-simulation" href="javascript:updateCurrentView('simulation');">Simulation</a>
+        <a id="menu-characters" href="javascript:updateCurrentView('characters');">Characters</a>
+        <a href="javascript:updateCurrentView('inventory');">Inventory</a>
+        <a id="menu-activity" href="javascript:updateCurrentView('activity');">Activity</a>
+        <a id="menu-gw" href="javascript:updateCurrentView('gw-list');">GW</a>
+        <a id="menu-log" href="javascript:updateCurrentView('log');">Log</a>
+        <a id="menu-home" href="javascript:playerSelected=userName;updateCurrentView('playerStats')">Home</a>
+        <a id="login-link" href="javascript:updateCurrentView('login');">Login</a>
+    </script>
+
+    <span id="view-menu">
+    </span>
+
+    <script id="view-login" type="text/html">
+        <form id="login" onsubmit="setAPIToken(event);">
+            User ID: <input type="password" autocomplete="off" name="User ID" id="user-id" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" size="36" maxlength="36" required>
+            <br>
+            API key: <input type="password" autocomplete="off" name="API key" id="api-key" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" size="36" maxlength="36" required>
+            <br>
+            Show API keys: <input id="show-keys" type="checkbox" onclick="showKeys()">
+            <br>
+            Highlight own user: <input id="highlight-user" type="checkbox" onclick="setHighlightUser()">
+            <br>
+            <input type="submit" value="Login">
+        </form>
+        <div id="api-response"></div>
+        <p>
+            By logging in, you can access the raid data of Eternal Nexus - only players in the guilds are able to login.
+        </p>
+        <p>
+            To get your user ID, copy it from the game:
+        </p>
+        <img style="max-width: 400px;width: 100%;" src="images/userid.png" />
+        <p>
+            To get your API key, <a href="https://api.tacticusgame.com/">generate an API key</a> with scope "player".
+        </p>
+        <p>
+            The player API key is used both for authentication and in order to periodically pull your roster, tokens, and inventory - officers can see everything and members can see everyone's inventory in order to facilitate trading.
+            Click your own name in one of the views to see your roster.
+        </p>
+        <p>The player data contains a few additional things that may be used in the future.</p>
+    </script>
+
+    <div id="current-view"></div>
+
+</body>
+</html>

@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+body, * {
+    font-family: 'Inter';
+    font-size: 14px;
+}
+
+.bossTable, .bossEveryoneTable {
+    padding: 0;
+    float: left;
+    width: 420px;
+    vertical-align: top;
+    font-family: Inter;
+    margin-left: 5px;
+    margin-top: 10px;
+    border-spacing: 0;
+}
+
+.bossEveryoneTable {
+    width: 290px;
+}
+
+.bossTable tbody tr:first-child, .bossEveryoneTable tbody tr:first-child {
+    background-color: #c5e4ff;
+}
+
+.bossTable caption, .bossEveryoneTable caption {
+    background-color: #3c77ab;
+    color: #fff;
+    border-radius: 5px 5px 0 0;
+    padding: 3px;
+}
+
+#view-menu {
+    display: inline-block;
+    line-height: 25px;
+}
+
+#view-menu a {
+    background-color: #3c77ab;
+    color: #fff;
+    border-radius: 5px;
+    padding: 2px 5px;
+}
+
+#view-menu a:hover {
+    background-color: #356087;
+}
+
+a#menu-home {
+    background-color: #d77815;
+}
+
+a#menu-home:hover {
+    background-color: #ad6010;
+}
+
+a#login-link {
+    background-color: #d77815;
+}
+
+a#login-link:hover {
+    background-color: #ad6010;
+}
+
+.seasonReportCaption {
+    padding: 10px 0 10px 0;
+    font-weight: bold;
+}
+
+#current-view>.lapTable>tbody>tr:first-child th {
+    border-radius: 5px 5px 0 0;
+    color: #fff;
+    background-color: #3c77ab;
+}
+
+.lapTable td {
+    width: 115px;
+}
+
+.lapTable {
+    border-spacing: 10px 3px;
+}
+
+.lapSummary {
+    background-color: #c5e4ff;
+}
+
+.lapTable tr th {
+    text-align: center;
+    width: 230px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+.lapSummary {
+    text-align: center;
+    border: solid 1px;
+}
+
+.lapTable .lapTable {
+    background-color: #ecf6ff;
+}
+
+.lapTable .lapTable td {
+    text-align: left;
+}
+
+.lapTable .lapTable td:last-child {
+    font-weight: bold;
+}
+
+.lapTable td {
+    text-align: center;
+}
+
+.loggedInPlayer {
+    background-color: #ecf6ff;
+}
+
+.dead {
+    opacity: 0.2;
+}
