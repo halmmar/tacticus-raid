@@ -34,7 +34,7 @@ wars = {}
 obj = {}
 
 gwFiles.forEach(f => {
-    f = ".secrets/.gw/" + f;
+    f = ".secrets/gw/" + f;
     var war = filterGWData(JSON.parse(fs.readFileSync(f, 'utf8')));
     var g1 = war.guildData[0].name;
     var g2 = war.guildData[1].name;
