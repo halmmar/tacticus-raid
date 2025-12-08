@@ -23,8 +23,10 @@ const bombEntity = "&#x1F4A3;"; // 💣
 
 const systemTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
+const demo = (typeof window !== 'undefined') && new URLSearchParams(window.location.search).has("demo");
+
 const season70start = 1741687200;
-const knownFinishedSeasons = range(70, 69+(((Date.now() / 1000)-season70start)/1209600), 1);
+const knownFinishedSeasons = demo ? [83] : range(70, 69+(((Date.now() / 1000)-season70start)/1209600), 1);
 
 const numBossesPerLap = 6;
 const raidTokenTimer = 12*60*60;
@@ -179,18 +181,28 @@ function notifyCurrentSeason(raidData) {
 }
 
 var initialize = async function() {
-    if (localStorage.getItem("user-id") == undefined || localStorage.getItem("api-key") == undefined || localStorage.getItem("user-name")==undefined) {
-        currentMode = 'login';
-        updateCurrentView();
-        return;
-    }
-    playerSelected = userName = localStorage.getItem("user-name");
-    userGuildRole = localStorage.getItem("user-guild-role");
-    highlightUser = localStorage.getItem("highlight-user");
-    if (highlightUser == undefined) {
+    if (demo) {
+        playerSelected = userName = "Rilak";
+        userGuildRole = "OFFICER";
         highlightUser = true;
+        document.getElementById("guildSelect").value = "Demo";
+        currentSeason = 83;
     } else {
-        highlightUser = JSON.parse(highlightUser);
+        if (localStorage.getItem("user-id") == undefined || localStorage.getItem("api-key") == undefined || localStorage.getItem("user-name")==undefined) {
+            currentMode = 'login';
+            updateCurrentView();
+            return;
+        }
+        playerSelected = userName = localStorage.getItem("user-name");
+        userGuildRole = localStorage.getItem("user-guild-role");
+        highlightUser = localStorage.getItem("highlight-user");
+        if (highlightUser == undefined) {
+            highlightUser = true;
+        } else {
+            highlightUser = JSON.parse(highlightUser);
+        }
+        document.getElementById("guildSelect").value = localStorage.getItem("guildSelect") || "";
+        currentSeason = +localStorage.getItem("seasonSelect") || 0;
     }
 
     document.getElementById("view-menu").innerHTML = document.getElementById("view-menu-container").innerHTML;
@@ -207,21 +219,19 @@ var initialize = async function() {
         }
     }
 
-    document.getElementById("guildSelect").value = localStorage.getItem("guildSelect") || "";
-    currentSeason = +localStorage.getItem("seasonSelect") || 0;
     console.log(knownFinishedSeasons);
-    range(70, currentSeason, 1).reverse().forEach(createSeason);
+    range(demo ? 83 : 70, currentSeason, 1).reverse().forEach(createSeason);
     knownFinishedSeasons.reverse().forEach(createSeason);
     
     document.getElementById("seasonSelect").value = currentSeason;
 
     updateGuild();
 
-    config = fetchJSON("config.json");
+    config = fetchJSON(demo ? "demo/config.json" : "config.json");
 
     unitNames = fetchJSON("unitnames.json");
-    playerUnits = fetchJSON("proxy.py?url=units");
-    summaryDamage = fetchJSON("proxy.py?url=summary");
+    playerUnits = fetchJSON(demo ? "demo/playerunits.json" : "proxy.py?url=units");
+    summaryDamage = fetchJSON(demo ? "demo/summary.json" : "proxy.py?url=summary");
 
     config = await config;
     movement = config.movement;
@@ -253,7 +263,7 @@ async function fetchSelectedSeason(guilds, seasonNumber) {
         if (seasonNumber == 0) {
             guild[seasonNumber] = guild[seasonNumber] || fetchJSON(`proxy.py?url=/api/v1/guildRaid&guild=${name}`).then(fixMythicTier).then(notifyCurrentSeason);
         } else {
-            guild[seasonNumber] = guild[seasonNumber] || fetchJSON(`proxy.py?url=/api/v1/guildRaid/${seasonNumber}&guild=${name}`).then(fixMythicTier);
+            guild[seasonNumber] = guild[seasonNumber] || fetchJSON(demo ? `demo/${seasonNumber}.json` : `proxy.py?url=/api/v1/guildRaid/${seasonNumber}&guild=${name}`).then(fixMythicTier);
         };
     });
 };
@@ -268,7 +278,7 @@ function updateGuild() {
     currentGuild.split(",").forEach(guild => {
         if (!guildsData[guild]) {
             guildsData[guild] = {
-                "guild": fetchJSON(`proxy.py?url=/api/v1/guild&guild=${guild}`).then(notifyGuildData)
+                "guild": demo ? fetchJSON("demo/guild.json") : fetchJSON(`proxy.py?url=/api/v1/guild&guild=${guild}`).then(notifyGuildData)
             };
         }    
     });
@@ -344,7 +354,7 @@ function lastHitCurrentBoss(currentRaid, bombsAvailable, minBombDamage, maxBombD
 }
 
 var updateCurrentView = async function(newMode) {
-    if (localStorage.getItem("user-id") == undefined || localStorage.getItem("api-key") == undefined || localStorage.getItem("user-name") == undefined) {
+    if (!demo && (localStorage.getItem("user-id") == undefined || localStorage.getItem("api-key") == undefined || localStorage.getItem("user-name") == undefined)) {
         newMode = "login";
     }
 
@@ -375,7 +385,7 @@ var updateCurrentView = async function(newMode) {
         }
         case "inventory":
             if (inventory == undefined) {
-                inventory = await fetchJSON(`proxy.py?url=inventory`);
+                inventory = await fetchJSON(demo ? "demo/inventory.json" : `proxy.py?url=inventory`);
             }
             guildsData[currentGuild].guild = await guildsData[currentGuild].guild;
             viewInventory(inventory);
@@ -384,7 +394,7 @@ var updateCurrentView = async function(newMode) {
         case "current-status":
         case "playerStats":
         case "characters": {
-            let seasons = [...new Set(Object.keys(allSeenSeasons).sort().concat(0).map(season => currentGuild.split(",").map(guild => {fetchSelectedSeason(guild, season); return season;})).flat())].map(i=>+i);
+            let seasons = [...new Set(Object.keys(allSeenSeasons).sort().concat(demo ? [] : 0).map(season => currentGuild.split(",").map(guild => {fetchSelectedSeason(guild, season); return season;})).flat())].map(i=>+i);
             console.log(seasons);
             let guilds = currentGuild.split(",");
             waitingForAllSeasons = await Promise.all(guilds.map(async guild => {
@@ -418,7 +428,7 @@ var updateCurrentView = async function(newMode) {
 
     switch (currentMode) {
         case "gw-list":
-            gwsData = await fetchJSON("guildwars.json");
+            gwsData = await fetchJSON(demo ? "demo/guildwars.json" : "guildwars.json");
             viewGWs(gwsData);
             break;
         case "gw":
@@ -456,7 +466,11 @@ var updateCurrentView = async function(newMode) {
                 return;
             }
             if (playerTokens[playerSelected]==undefined) {
-                playerTokens[playerSelected] = await fetchJSON(`proxy.py?url=tokens&player=${playerSelected}`);
+                playerTokens[playerSelected] = await fetchJSON(demo ? "demo/tokens.json" : `proxy.py?url=tokens&player=${playerSelected}`);
+                if (demo) {
+                    var tsNow = new Date()/1000;
+                    playerTokens[playerSelected].lastUpdatedOn += tsNow - playerTokens[playerSelected].fakeCurrentTime;
+                }
             }
             viewPlayerStats(playerSelected, currentRaid, waitingForAllSeasons);
             break;
@@ -576,7 +590,7 @@ async function viewStatus(currentRaid, allSeasonRaids, guildData) {
     var {legendaryTokenCount: legendaryTokenCount, damageCount: damageCount, playerRaidTimes: playerRaidTimes, maxBombDamage: maxBombDamage, minBombDamage: minBombDamage, playerBombTimesInverse: playerBombTimesInverse, tsBombsAgo: tsBombsAgo, raidStart: raidStart, ts: ts}
     = getTokenTimes(currentRaid, allSeasonEntries, guildData);
 
-    allMembers = new Set(guildData.guild.members.map(it => it.userName));
+    allMembers = currentSeason==0 ? new Set(guildData.guild.members.map(it => it.userName)) : new Set();
 
     var rows = playerBombTimesInverse.map(it => {
         let id = it[1];
@@ -1091,7 +1105,7 @@ async function viewPlayerStats(playerSelected, currentRaid, allSeasonRaids) {
     <tr><td>Season</td><td>Tokens</td>${allGuildNamesInOrder.map(name => `<td>${name}</td>`).join("")}</tr>
     ${
         allSeasonRaids.reverse().map(raid => {
-            if (summaryDamage.EN[raid.season] == undefined) {
+            if (summaryDamage[allGuildNamesInOrder[0]][raid.season] == undefined) {
                 return "";
             }
             var moved = playerMoved(playerSelected, raid.season) || raid.season == 70;
@@ -1508,6 +1522,10 @@ function upgradeInfo(upg) {
 }
 
 function viewInventory(inventory) {
+    if (demo) {
+        document.getElementById("current-view").innerHTML = "DEMO disabled. Here, players can see upgrades held by themselves and others in the guild (to be able to trade easier)";
+        return;
+    }
     document.getElementById("current-view").innerHTML = `
     <div>
     <input id="filter-upgrades-tradeable" type="checkbox" onchange="javascript:updateUpgrade();" checked />
@@ -1696,7 +1714,7 @@ function filterGWData(gwData) {
 }
 
 async function viewGWs(gwsData) {
-    document.getElementById("current-view").innerHTML = `
+    document.getElementById("current-view").innerHTML = demo ? "DEMO disabled" : `
     <ul>
     ${Object.keys(gwsData).reverse().map(gw => {
         return `<li><a href="javascript:selectedGW='${gwsData[gw]}';updateCurrentView('gw');">${gw}</a></li>`
