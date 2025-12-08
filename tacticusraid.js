@@ -59,7 +59,7 @@ playerUnitsSortMode = undefined;
 selectedPlayerUnits = undefined;
 selectedGW = undefined;
 
-const allGuildNamesInOrder = ["EN","Chaos","Imperial","Xenos"];
+allGuildNamesInOrder = [];
 
 const ranksName = ["Stone1","Stone2","Stone3","Iron1","Iron2","Iron3","Bronze1","Bronze2","Bronze3","Silver1","Silver2","Silver3","Gold1","Gold2","Gold3","Diamond1","Diamond2","Diamond3","Adamantine1","Adamantine2","Adamantine3"];
 const progressionIndexStarName = {"s": "star small","S":"star","r":"red star small","R":"red star","w":"white star","W": "white star", "M":"mythic star"};
@@ -226,6 +226,7 @@ var initialize = async function() {
     config = await config;
     movement = config.movement;
     discordNames = config.discordNames;
+    allGuildNamesInOrder = config.guildsList.filter(guild => !(guild[0].includes(","))).map(guild => guild[0]);
     document.getElementById("guildSelect").innerHTML = config.guildsList.map(guild => `<option value="${guild[0]}">${guild[1]}</option>`).join("\n");
 
     await fetchSelectedSeason(currentGuild, currentSeason);
