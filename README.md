@@ -10,6 +10,14 @@ The tool fetches the player's units/etc hourly to provide additional information
 
 If there is no mapping for a username, part of the user ID string is returned; the tool never returns the full user ID. 
 
+## Demo
+
+https://halmmar.github.io/tacticus-raid/?demo contains a demostration using static data from season 83 as well as more recent player data for Rilak. The copy-paste functionality for raids uses the most recent unit data, so for old seasons they will list stronger units than were available at the time (it has mainly been used to create Discord messages when we link videos, so everyone can see the units at the time).
+
+The copy-paste funcionality for pinging bombs is working, but only for Rilak, and because the season ended a long time ago, everyone has bombs.
+
+The guild wars and item trading features are not active in the demo.
+
 ## Configuration
 
 To get started, create the following files in the .secrets folder (perhaps store these in a separate git repo to manage the files and let other guild members update the configuration).
