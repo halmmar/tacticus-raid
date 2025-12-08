@@ -12,7 +12,7 @@ tacticusplanner
 discord.json
 .secrets/summary.json
 .secrets/.gw*
-guildwars.json
+/guildwars.json
 movement.json
 /config.json
 .secrets
