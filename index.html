@@ -207,15 +207,6 @@
 <body onLoad="initialize()">
 
     <select name="guild" id="guildSelect" onchange="javascript:updateGuild();updateSeason().then(updateCurrentView);">
-        <option value="EN">Eternal Nexus</option>
-        <option value="Chaos">Chaos</option>
-        <option value="Imperial">Imperial</option>
-        <option value="Xenos">Xenos</option>
-        <option value="EN,Chaos">EN+C</option>
-        <option value="EN,Chaos,Imperial">EN+C+I</option>
-        <option value="EN,Chaos,Imperial,Xenos">EN+C+I+X</option>
-        <option value="Chaos,Imperial">Chaos+Imp</option>
-        <option value="Imperial,Xenos">Imp+Xeno</option>
     </select>
 
     <select name="season" id="seasonSelect" onchange="javascript:updateSeason().then(updateCurrentView);">
