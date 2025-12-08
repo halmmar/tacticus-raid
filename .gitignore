@@ -14,6 +14,6 @@ discord.json
 .secrets/.gw*
 guildwars.json
 movement.json
-config.json
+/config.json
 .secrets
 .snowprint_assets
