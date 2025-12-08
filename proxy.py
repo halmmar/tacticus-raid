@@ -3,7 +3,7 @@
 import json
 import os
 import sys
-from secrets import api_get_raw, keys, members, playerids
+from secrets import api_get_raw, keys, members, playerids, cacheRaidData, stripGuildRaidData
 from urllib import parse
 
 def error(message=""):
@@ -32,37 +32,15 @@ if api_entrypoint not in ["units","tokens","inventory","summary","gw"] and api_k
 if api_key and not api_entrypoint.startswith("/api/v1/guild"):
   error("Entrypoint is not guild or guildRaid:"+api_entrypoint)
 
-def stripGuildRaidData(raid):
-  for entry in raid["entries"]:
-    id = entry["userId"]
-    del entry["userId"]
-    entry["userName"] = members.get(id, {"name": id.split("-")[0]}).get("name")
+def cacheRaidDataWithError(guild_name, season):
+  res = cacheRaidData(guild_name, season)
+  if res:
+    error(res)
 
-def cacheRaidData(guildId, season):
-  fName = ".season/%s/%d.json" % (guildId,season)
-  rawname = ".secrets/" + fName
-  t1 = os.path.getmtime('.secrets/members.json')
-  if not os.path.exists(rawname):
-    os.makedirs(os.path.dirname(rawname), exist_ok=True)
-    data2 = json.loads(api_get_raw('/api/v1/guildRaid/%d' % season, guild_name))
-    if "entries" not in data2:
-      error("Missing raid data for %s %s: %s" % (season, guild_name, data2))
-    with open(rawname, 'w') as fout:
-      json.dump(data2, fout)
-  elif (not os.path.exists(fName)) or os.path.getmtime(fName) < t1:
-    with open(rawname, "r") as fin:
-      data2 = json.load(fin)
-  if (not os.path.exists(fName)) or os.path.getmtime(fName) < t1:
-    os.makedirs(os.path.dirname(fName), exist_ok=True)
-    if "entries" not in data2:
-      error("Missing raid data for %s %s: %s" % (season, guild_name, data2))
-    stripGuildRaidData(data2)
-    with open(fName, 'w') as fout:
-      json.dump(data2, fout)
 
 if api_entrypoint.startswith("/api/v1/guildRaid/"):
   season = int(api_entrypoint.split("/")[-1])
-  cacheRaidData(guild_name, season)
+  cacheRaidDataWithError(guild_name, season)
   with open(".season/%s/%s.json" % (guild_name,season),"r") as fin:
     data = fin.read()
   print("Cache-Control: max-age=36000")
@@ -106,7 +84,7 @@ def replaceUserId(member):
 if api_entrypoint == "/api/v1/guild":
   guildData = json.loads(data)
   for season in guildData["guild"]["guildRaidSeasons"][0:-1]:
-    cacheRaidData(guild_name, season)
+    cacheRaidDataWithError(guild_name, season)
   for m in guildData["guild"]["members"]:
     replaceUserId(m)
   del guildData["guild"]["guildId"]
@@ -115,7 +93,7 @@ if api_entrypoint == "/api/v1/guild":
 elif api_entrypoint == "/api/v1/guildRaid":
   raidData = json.loads(data)
   for season in range(70, raidData["season"]):
-    cacheRaidData(guild_name, season)
+    cacheRaidDataWithError(guild_name, season)
   stripGuildRaidData(raidData)
   data = json.dumps(raidData, indent=4, sort_keys=True)
 

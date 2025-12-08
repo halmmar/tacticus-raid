@@ -60,6 +60,7 @@ upgradeSelected = undefined;
 playerUnitsSortMode = undefined;
 selectedPlayerUnits = undefined;
 selectedGW = undefined;
+initialized = false;
 
 allGuildNamesInOrder = [];
 
@@ -225,8 +226,6 @@ var initialize = async function() {
     
     document.getElementById("seasonSelect").value = currentSeason;
 
-    updateGuild();
-
     config = fetchJSON(demo ? "demo/config.json" : "config.json");
 
     unitNames = fetchJSON("unitnames.json");
@@ -239,7 +238,11 @@ var initialize = async function() {
     allGuildNamesInOrder = config.guildsList.filter(guild => !(guild[0].includes(","))).map(guild => guild[0]);
     document.getElementById("guildSelect").innerHTML = config.guildsList.map(guild => `<option value="${guild[0]}">${guild[1]}</option>`).join("\n");
 
+    updateGuild();
+
     await fetchSelectedSeason(currentGuild, currentSeason);
+
+    initialized = true;
 
     updateCurrentView();
 };
@@ -250,6 +253,10 @@ function fixMythicTier(raid) {
             entry.rarity = "Mythic";
             entry.tier -= 1;
             entry.set += 5;
+        }
+        if (raid.season>=84 && entry.tier>4) {
+            entry.tier = Math.ceil((entry.tier-4)/2)+4;
+
         }
         return entry;
     });
@@ -354,6 +361,10 @@ function lastHitCurrentBoss(currentRaid, bombsAvailable, minBombDamage, maxBombD
 }
 
 var updateCurrentView = async function(newMode) {
+    if (!initialized) {
+        document.getElementById("current-view").innerHTML = `Loading...`;
+        return;
+    }
     if (!demo && (localStorage.getItem("user-id") == undefined || localStorage.getItem("api-key") == undefined || localStorage.getItem("user-name") == undefined)) {
         newMode = "login";
     }

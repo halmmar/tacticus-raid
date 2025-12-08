@@ -6,7 +6,7 @@ import os
 import requests
 import shutil
 import sys
-from secrets import api_get, keys, members
+from secrets import api_get, keys, members, cacheRaidData
 from pathlib import Path
 
 def error(message=""):
@@ -16,12 +16,20 @@ def error(message=""):
 
 allMembers = {}
 
+res = api_get("/api/v1/guildRaid", key=list(keys.keys())[0])
+currentSeason = int(res["season"])
+
 for guild in keys.keys():
   res = api_get("/api/v1/guild", key=guild)
   if "guild" not in res:
     raise Exception("/guild entrypoint not working for %s" % guild)
   for member in res["guild"]["members"]:
     allMembers[member["userId"]] = members.get(member["userId"],{}).get("role",member["role"])
+  for season in range(70,currentSeason):
+    message = cacheRaidData(guild, season)
+    if message:
+      raise Exception(message)
+  
 
 with open(".secrets/playerids.json","w") as fout:
   json.dump({"playerIds": allMembers}, fout)
