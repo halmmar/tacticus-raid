@@ -28,7 +28,7 @@ var json = JSON.stringify(obj);
 
 fs.writeFileSync('.secrets/summary.json', json, 'utf8');
 
-const gwFiles = fs.readdirSync(".secrets/.gw", { recursive: true });
+const gwFiles = fs.readdirSync(".secrets/gw", { recursive: true });
 
 wars = {}
 obj = {}
