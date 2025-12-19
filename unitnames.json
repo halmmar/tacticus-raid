@@ -462,6 +462,15 @@
             "grandAlliance": "Xenos",
             "name": "Calandis"
         },
+        "emperFlawlessBlade": {
+            "abilities": [
+                "DaemonicPatrons",
+                "EcstaticSlaughter"
+            ],
+            "faction": "EmperorsChildren",
+            "grandAlliance": "Chaos",
+            "name": "Hascule"
+        },
         "emperKakophonist": {
             "abilities": [
                 "DoomSiren",
