@@ -1830,6 +1830,9 @@ async function viewGW(gwData) {
                 opponentDefendingCharacterStats[u.unitId].successes += !alive;
             }
         });
+        if (e.attacker.units == undefined) {
+            e.attacker.units = [];
+        }
         e.attacker.units.forEach(u => {
             if (!ownAttackingCharacterStats[u.unitId]) {
                 ownAttackingCharacterStats[u.unitId] = {"successes": 0, "attempts": 0};
