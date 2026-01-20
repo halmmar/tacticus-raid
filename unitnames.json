@@ -679,6 +679,15 @@
             "grandAlliance": "Imperial",
             "name": "Njal"
         },
+        "spaceWolfPriest": {
+            "abilities": [
+                "RitesOfMorkai",
+                "HealingBalms"
+            ],
+            "faction": "SpaceWolves",
+            "grandAlliance": "Imperial",
+            "name": "Baldr"
+        },
         "spaceWulfen": {
             "abilities": [
                 "GreatFrostAxe",
@@ -724,6 +733,15 @@
             "faction": "Tau",
             "grandAlliance": "Xenos",
             "name": "Darkstrider"
+        },
+        "tauFarsight": {
+            "abilities": [
+                "ExemplarOfTheMontka",
+                "WayOfTheShortBlade"
+            ],
+            "faction": "Tau",
+            "grandAlliance": "Xenos",
+            "name": "Farsight"
         },
         "tauMarksman": {
             "abilities": [
