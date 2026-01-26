@@ -41,6 +41,7 @@ currentTeam = "admecDominus,admecManipulus,admecMarshall,admecRuststalker,tauMar
 guildsData = {};
 unitNames = {};
 currentGuild = '';
+const currentGuildToGuildName = new Map();
 currentMode = 'playerStats';
 currentSeason = 0;
 playerSelected = '';
@@ -236,6 +237,9 @@ var initialize = async function() {
     movement = config.movement;
     discordNames = config.discordNames;
     allGuildNamesInOrder = config.guildsList.filter(guild => !(guild[0].includes(","))).map(guild => guild[0]);
+    config.guildsList.filter(guild => guild[2]).forEach(guild => {
+        currentGuildToGuildName.set(guild[0], guild[2]);
+    });
     document.getElementById("guildSelect").innerHTML = config.guildsList.map(guild => `<option value="${guild[0]}">${guild[1]}</option>`).join("\n");
 
     updateGuild();
@@ -1758,7 +1762,11 @@ async function viewGW(gwData) {
     var numDefenceAttempts = 0;
     var numDefenceWins = 0;
     const medicaeBuff = "EnvDefenderHealthBuff2";
-    const ourTeamIndex = data.guildData[0].name == "ETERNAL NEXUS" ? 1 : 2;
+    const guildName = currentGuildToGuildName.get(currentGuild);
+    const ourTeamIndex = data.guildData[0].name == guildName ? 1 : 2;
+    if (ourTeamIndex == 2 && data.guildData[1].name != guildName) {
+        document.getElementById("current-view").innerHTML = `The guild is not selected for this GW`;
+    }
     const opponentTeamIndex = ourTeamIndex == 1 ? 2 : 1;
     events = data.activityLogs.filter(e => {
         if (e.type != "battleFinished") {

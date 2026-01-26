@@ -462,6 +462,15 @@
             "grandAlliance": "Xenos",
             "name": "Calandis"
         },
+        "emperExultant": {
+            "abilities": [
+                "EuphoricStrikes",
+                "RefusalToBeOutdone"
+            ],
+            "faction": "EmperorsChildren",
+            "grandAlliance": "Chaos",
+            "name": "Laviscus"
+        },
         "emperFlawlessBlade": {
             "abilities": [
                 "DaemonicPatrons",
