@@ -1,573 +1,4 @@
-const goldMedalEntity = "&#x1F947;" // 🥇
-const tombStoneEntity = "&#x1FAA6;"; // 🪦
-const clipboardEntity = "&#x1F4CB;"; // 📋
-const familyEntity = "&#x1F46A;"; // 👪
-const personEntity = "&#x1F9CD;"; // 🧍
-const hammerEntity = "&#x1F528;"; // 🔨
-const bombEntity = "&#x1F4A3;"; // 💣
-
-const systemTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-const demo = (typeof window !== 'undefined') && new URLSearchParams(window.location.search).has("demo");
-
-const season70start = 1741687200;
-const knownFinishedSeasons = demo ? [83] : range(70, 69+(((Date.now() / 1000)-season70start)/1209600), 1);
-
-const numBossesPerLap = 6;
-const raidTokenTimer = 12*60*60;
-
-const expectedTokensPerSeason = 26; // Could be allowed to be 27...
-
-let activityFilterBombs = true;
-let highlightUser = undefined;
-let userName = undefined;
-let userGuildRole = undefined;
-let currentTeam = "admecDominus,admecManipulus,admecMarshall,admecRuststalker,tauMarksman,ultraDreadnought";
-let guildsData = {};
-let unitNames = {};
-let currentGuild = '';
-const currentGuildToGuildName = new Map();
-let currentMode = 'playerStats';
-let currentSeason = 0;
-let playerSelected = '';
-let movement = {};
-let allSeenSeasons = {};
-let playerUnits = {};
-let discordNames = {};
-let summaryDamage = {};
-let bossSortMode = undefined;
-let bossVsMode = 'Top';
-let weightedSortMode = "final";
-let bossTeamMode = "player";
-let playerTokens = {};
-let statusSortMode = 'bomb';
-let inventory = undefined;
-let upgradeSelected = undefined;
-let playerUnitsSortMode = undefined;
-let selectedPlayerUnits = undefined;
-let selectedGW = undefined;
-let initialized = false;
-
-let allGuildNamesInOrder = [];
-
-const ranksName = ["Stone1","Stone2","Stone3","Iron1","Iron2","Iron3","Bronze1","Bronze2","Bronze3","Silver1","Silver2","Silver3","Gold1","Gold2","Gold3","Diamond1","Diamond2","Diamond3","Adamantine1","Adamantine2","Adamantine3"];
-const progressionIndexStarName = {"s": "star small","S":"star","r":"red star small","R":"red star","w":"white star","W": "white star", "M":"mythic star"};
-const progressionIndexNumStars = ["","s","ss","ss","sss","ssss","ssss","ssSss","r","r","rr","rrr","rRr","rrrr","rrRrr","w","W","WW","WWW","M"];
-const progressionIndexStars = progressionIndexNumStars.map(stars => {
-    return stars.split("").map(star => `<img class="${star.toLowerCase() == star ? "smallStar" : "bigStar"}" src="images/stars/${progressionIndexStarName[star]}.png">`).join("");
-});
-const progressionIndexStarsDiscord = progressionIndexNumStars.map(stars => {
-    let len = stars.length;
-    if (len==0) {
-        return "";
-    }
-    return ` ${len>1 ? `${len}x ` : ""}${stars.toLowerCase()[0] == "w" ? ":11Stars:" : (stars[0] == "r" ? ":6Stars:" : ":1Star:")}`;
-});
-const progressionIndexRarityStarsText = ["C 0S","C 1S","C 2S","U 2S","U 3S","U 4S","R 4S","R 5S","R 1R","E 1R","E 2R","E 3R","L 3R","L 4R","L 5R","L 1W","M 1W","M 2W","M 3W","M MS"];
-
-const tierToRarityName = ["Common","Uncommon","Rare","Epic","Legendary"];
-
-const bossFriendlyNames = {
-    "AvatarOfKhaine": ["Avatar", "Aethana", "Eldryon"],
-    "Belisarius": ["Belisarius Cawl", "Tan Gi'da", "Actus"],
-    "BelisariusRW": ["Belisarius Cawl", "Tan Gi'da", "Actus"],
-    "Ghazghkull": ["Ghazghkull", "Gibbascrapz", "Tanksmasha"],
-    "HiveTyrantGorgon": ["Hive Tyrant", "Alpha", "Omega"],
-    "HiveTyrantKronos": ["Hive Tyrant", "Alpha", "Omega"],
-    "HiveTyrantLeviathan": ["Hive Tyrant", "Alpha", "Omega"],
-    "Magnus": ["Magnus", "Thaumachus", "Abraxas"],
-    "Mortarion": ["Mortarion", "Rotbone", "Corrodius"],
-    "Riptide": ["Riptide", "Sho'syl", "Re'vas"],
-    "RogalDorn": ["Rogal Dorn", "Sibyll", "Thaddeus"],
-    "ScreamerKiller": ["Screamer-Killer", "Neurothrope", "Winged Prime"],
-    "SilentKing": ["Szarekh", "Hapthatra", "Mesophet"],
-    "TervigonGorgon": ["Tervigon", "Alpha", "Omega"],
-    "TervigonKronos": ["Tervigon", "Alpha", "Omega"],
-    "TervigonLeviathan": ["Tervigon", "Alpha", "Omega"]
-};
-
-function hasRights(role) {
-    const roleValue = {"MEMBER": 1, "OFFICER": 2, "CO_LEADER": 3, "LEADER": 4, "ADMIN": 5};
-    return (roleValue[userGuildRole]||0) >= (roleValue[role]||0);
-}
-
-const bossFriendlyName = function(name, encounterIndex) {
-    return (bossFriendlyNames[name] || [name, name + " left prime", name + " right prime"])[encounterIndex];
-};
-
-function ranksImage(rank, id) {
-    return `<img class="unitThumbnail" src="images/ranks/${unitNames.mows.includes(id) ? "mow" : ranksName[rank].toLowerCase()}.png" />`
-}
-
-function playerMoved(name, season) {
-    return (movement[season]||[]).includes(name);
-}
-
-function memberCell(name, season) {
-    let link = (name != userName && !hasRights("OFFICER")) ? name : `<div class="nameLink"><a class="nameLink" href="javascript:playerSelected='${name}';updateCurrentView('playerStats')">${name}</a></div>`;
-    return `<td class="${(movement[season]||[]).includes(name) ? "midseasonMove " : ""}">${link}</td>`
-}
-
-function getColorPercent(value) {
-    //value from 0=red to 1=green
-    const hue = (value * 120).toString(10);
-    return ["hsl(", hue, ",100%,50%)"].join("");
-}
-
-function calculateGradientColor(colorRgb, percentage) {
-    const whiteRgb = { r: 255, g: 255, b: 255 };
-
-    const r = Math.round(whiteRgb.r + (colorRgb.r - whiteRgb.r) * percentage);
-    const g = Math.round(whiteRgb.g + (colorRgb.g - whiteRgb.g) * percentage);
-    const b = Math.round(whiteRgb.b + (colorRgb.b - whiteRgb.b) * percentage);
-
-    return `rgb(${r},${g},${b})`;
-}
-
-function getColorIntensityPercent(percentage) {
-    return calculateGradientColor({ r: 255, g: 0, b: 255 }, percentage);
-}
-
-function range(start, stop, step) {
-	return Array.from(
-		{ length: (stop - start) / step + 1 },
-		(_, i) => start + i * step
-	);
-}
-
-const fetchJSON = function(url) {
-  return fetch(url, {
-        method: "GET",
-        headers: {"X-USER-ID": localStorage.getItem("user-id"), "X-API-KEY": localStorage.getItem("api-key")}}).then(response => {
-    if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      };
-      return response.json();
-  });
-};
-
-const createSeason = function(i) {
-    var id = `seasonSelectSeason${i}`;
-    if (i && !document.getElementById(id)) {
-        seasonSelect.innerHTML += `<option id="${id}" value="${i}">Season ${i}</option>`
-    }
-    allSeenSeasons[i] = i;
-};
-
-const notifyGuildData = function(guild) {
-    var seasons = guild["guild"]["guildRaidSeasons"].slice(0,-1);
-    seasonSelect = document.getElementById("seasonSelect");
-    seasons.forEach(createSeason);
-    return guild;
-};
-
-function notifyCurrentSeason(raidData) {
-    var seasonNumber = raidData.season;
-    range(70, seasonNumber-1, 1).forEach(createSeason);
-    return raidData;
-}
-
-const initialize = async function() {
-    if (demo) {
-        playerSelected = userName = "Rilak";
-        userGuildRole = "OFFICER";
-        highlightUser = true;
-        document.getElementById("guildSelect").value = "Demo";
-        currentSeason = 83;
-    } else {
-        if (localStorage.getItem("user-id") == undefined || localStorage.getItem("api-key") == undefined || localStorage.getItem("user-name")==undefined) {
-            currentMode = 'login';
-            updateCurrentView();
-            return;
-        }
-        playerSelected = userName = localStorage.getItem("user-name");
-        userGuildRole = localStorage.getItem("user-guild-role");
-        highlightUser = localStorage.getItem("highlight-user");
-        if (highlightUser == undefined) {
-            highlightUser = true;
-        } else {
-            highlightUser = JSON.parse(highlightUser);
-        }
-        document.getElementById("guildSelect").value = localStorage.getItem("guildSelect") || "";
-        currentSeason = +localStorage.getItem("seasonSelect") || 0;
-    }
-
-    document.getElementById("view-menu").innerHTML = document.getElementById("view-menu-container").innerHTML;
-
-    switch (userGuildRole) {
-        case "ADMIN":
-        case "LEADER":
-        case "CO_LEADER":
-        case "OFFICER": {
-            break;
-        }
-        default: {
-            ["menu-roster","menu-activity","menu-simulation","menu-characters"].forEach(id => document.getElementById(id).remove());
-        }
-    }
-
-    console.log(knownFinishedSeasons);
-    range(demo ? 83 : 70, currentSeason, 1).reverse().forEach(createSeason);
-    knownFinishedSeasons.reverse().forEach(createSeason);
-    
-    document.getElementById("seasonSelect").value = currentSeason;
-
-    config = fetchJSON(demo ? "demo/config.json" : "config.json");
-
-    unitNames = fetchJSON("unitnames.json");
-    playerUnits = fetchJSON(demo ? "demo/playerunits.json" : "proxy.py?url=units");
-    summaryDamage = fetchJSON(demo ? "demo/summary.json" : "proxy.py?url=summary");
-
-    config = await config;
-    movement = config.movement;
-    discordNames = config.discordNames;
-    allGuildNamesInOrder = config.guildsList.filter(guild => !(guild[0].includes(","))).map(guild => guild[0]);
-    config.guildsList.filter(guild => guild[2]).forEach(guild => {
-        currentGuildToGuildName.set(guild[0], guild[2]);
-    });
-    document.getElementById("guildSelect").innerHTML = config.guildsList.map(guild => `<option value="${guild[0]}">${guild[1]}</option>`).join("\n");
-
-    updateGuild();
-
-    await fetchSelectedSeason(currentGuild, currentSeason);
-
-    initialized = true;
-
-    updateCurrentView();
-};
-
-function fixMythicTier(raid) {
-    raid.entries = raid.entries.map(entry => {
-        if (entry.rarity == "Mythic" || (entry.rarity == "Legendary" && (entry.maxHp > 20e6 || (entry.encounterIndex>0 && entry.maxHp > 1.9e6)))) {
-            entry.rarity = "Mythic";
-            entry.tier -= 1;
-            entry.set += 5;
-        }
-        if (raid.season>=84 && entry.tier>4) {
-            entry.tier = Math.ceil((entry.tier-4)/2)+4;
-
-        }
-        return entry;
-    });
-    return raid;
-};
-
-async function fetchSelectedSeason(guilds, seasonNumber) {
-    guilds.split(",").forEach(name => {
-        var guild = guildsData[name];
-
-        if (seasonNumber == 0) {
-            guild[seasonNumber] = guild[seasonNumber] || fetchJSON(`proxy.py?url=/api/v1/guildRaid&guild=${name}`).then(fixMythicTier).then(notifyCurrentSeason);
-        } else {
-            guild[seasonNumber] = guild[seasonNumber] || fetchJSON(demo ? `demo/${seasonNumber}.json` : `proxy.py?url=/api/v1/guildRaid/${seasonNumber}&guild=${name}`).then(fixMythicTier);
-        };
-    });
-};
-
-function updateGuild() {
-    currentGuild = document.getElementById("guildSelect").value;
-
-    if (currentGuild != "") {
-        localStorage.setItem("guildSelect", currentGuild);
-    }
-
-    currentGuild.split(",").forEach(guild => {
-        if (!guildsData[guild]) {
-            guildsData[guild] = {
-                "guild": demo ? fetchJSON("demo/guild.json") : fetchJSON(`proxy.py?url=/api/v1/guild&guild=${guild}`).then(notifyGuildData)
-            };
-        }    
-    });
-};
-
-async function updateSeason() {
-    currentSeason =  +document.getElementById("seasonSelect").value;
-    localStorage.setItem("seasonSelect", currentSeason);
-    await fetchSelectedSeason(currentGuild, currentSeason);
-};
-
-function findLastBossEntry(entries, encounterIndex) {
-    var lastBossEntry = entries.findLast(entry => entry.encounterIndex==encounterIndex) || {"type": "???", "maxHp": 1, "remainingHp": 1, "tier": 0};
-    if (lastBossEntry.remainingHp == 0) {
-        lastBossEntry = Object.assign({}, lastBossEntry);
-        lastBossEntry.tier = lastBossEntry.tier + (lastBossEntry.set >= (numBossesPerLap-1));
-        lastBossEntry.set = lastBossEntry.set >= (numBossesPerLap-1) ? 0 : lastBossEntry.set + 1;
-        let previousBoss = entries.findLast(entry => entry["encounterIndex"]==encounterIndex && entry.tier>=(numBossesPerLap-1) && entry.set == lastBossEntry.set);
-        if (previousBoss) {
-            lastBossEntry = {"type": previousBoss.type, "maxHp": previousBoss.maxHp, "remainingHp": previousBoss.maxHp, "tier": lastBossEntry.tier, "set": lastBossEntry.set, "encounterIndex": encounterIndex};
-        } else {
-            let previousBoss = entries.findLast(entry => entry["encounterIndex"]==0 && entry.tier>=4 && entry.set == lastBossEntry.set) || {"type": "???", "maxHp": 1, "remainingHp": 1, "tier": 0};
-            if (previousBoss) {
-                lastBossEntry = {"type": previousBoss.type, "maxHp": 1, "remainingHp": 1, "tier": lastBossEntry.tier, "set": lastBossEntry.set, "encounterIndex": encounterIndex};
-            } else {
-                lastBossEntry = {"type": "???", "maxHp": 1, "remainingHp": 1, "tier": lastBossEntry.tier, "set": lastBossEntry.set, "encounterIndex": encounterIndex};
-            }
-        }
-    }
-    return lastBossEntry;
-}
-
-function findLastSideBossEntry(lastBossEntry, entries, encounterIndex) {
-    var lastSideBossEntryAnyTier = entries.findLast(entry => entry.encounterIndex==encounterIndex && entry.set == lastBossEntry.set)||{maxHp: 1};
-    return entries.findLast(entry => entry.encounterIndex==encounterIndex && entry.tier==lastBossEntry.tier && entry.set == lastBossEntry.set) || {"type": lastBossEntry.type, "maxHp": lastSideBossEntryAnyTier.maxHp, "remainingHp": lastSideBossEntryAnyTier.maxHp, "tier": lastBossEntry.tier, "set": lastBossEntry.set, "encounterIndex": encounterIndex};
-}
-
-function lastHitCurrentBoss(currentRaid, bombsAvailable, minBombDamage, maxBombDamage, discordBombsAvailable) {
-    lastBossEntry = findLastBossEntry(currentRaid.entries, 0);
-    var lap = lastBossEntry.tier > 4 ? `#${lastBossEntry.tier-3}` : "";
-
-    var lastSideBoss1Entry = findLastSideBossEntry(lastBossEntry, currentRaid.entries, 1);
-    var lastSideBoss2Entry = findLastSideBossEntry(lastBossEntry, currentRaid.entries, 2);
-
-    var res = [lastSideBoss1Entry, lastSideBoss2Entry, lastBossEntry].map(entry => {
-        let maxHp = entry["maxHp"];
-        let remainingHp = entry["remainingHp"];
-        let percent = Math.floor(100 * entry["remainingHp"] / entry["maxHp"]);
-
-        let maxBombs = Math.ceil(remainingHp / minBombDamage);
-        let minBombs = Math.ceil(remainingHp / maxBombDamage);
-
-        let name = bossFriendlyName(entry.type,entry.encounterIndex);
-
-        let bombText = "";
-
-        if (remainingHp && name != "Corrodius" && bombsAvailable >= minBombs) {
-            bombText = `<a href="javascript:navigator.clipboard.writeText('${minBombs==maxBombs ? minBombs : `${minBombs}-${maxBombs}`} ${bombEntity} needed on ${name.replace("'","\\'")} ${discordBombsAvailable.join(" ")}');">${bombEntity}</a>`
-        }
-
-        let rarity = tierToRarityName[lastBossEntry.tier > 4 ? 4: lastBossEntry.tier];
-        let set = lastBossEntry["set"]+1;
-        if (rarity == "Legendary" && lastBossEntry.set > 4) {
-            rarity = "Mythic";
-            set -= 5;
-        }
-    
-        let innerHTML = `${name} ${rarity[0]}${set}${lap} ${remainingHp ? `${damageToFixedMillion(remainingHp)}/${damageToFixedMillion(maxHp)}` : tombStoneEntity}${bombText}`;
-        let style = `background: linear-gradient(to right, rgba(255,0,0,1) 0%, rgba(255,0,0,0.2) ${percent}%, rgba(255,0,0,0) ${percent}%);`;
-        return `<tr class="current-boss-status"><td style="${style}" colspan="9">${innerHTML}</td></tr>`;
-    });
-    return res.join("\n");
-}
-
-const updateCurrentView = async function(newMode) {
-    if (!initialized) {
-        document.getElementById("current-view").innerHTML = `Loading...`;
-        return;
-    }
-    if (!demo && (localStorage.getItem("user-id") == undefined || localStorage.getItem("api-key") == undefined || localStorage.getItem("user-name") == undefined)) {
-        newMode = "login";
-    }
-
-    if (userName) {
-        document.getElementById("menu-home").innerHTML = userName;
-        document.getElementById("login-link").innerHTML = `Settings`;
-    }
-
-    if (newMode) {
-        currentMode = newMode;
-    }
-
-    var waitingForAllSeasons;
-    var waitingForData;
-
-    switch (currentMode) {
-        case "login": {
-            document.getElementById("current-view").innerHTML = document.getElementById("view-login").innerHTML;
-            let user_id = localStorage.getItem("user-id");
-            let api_key = localStorage.getItem("api-key");
-            document.getElementById("user-id").value = user_id || "";
-            document.getElementById("api-key").value = api_key || "";
-            if (userName) {
-                document.getElementById("api-response").innerHTML = `Your own stats: <a href="javascript:playerSelected='${userName}';updateCurrentView('playerStats')">${userName}</a>${!hasRights("OFFICER") ? "" : `<form id="remove-rights" onsubmit="removeOfficerRights(event);"><input type="submit" value="Remove officer rights until next login"></input></form>`}`;
-            }
-            document.getElementById("highlight-user").checked = highlightUser;
-            return;   
-        }
-        case "inventory":
-            if (inventory == undefined) {
-                inventory = await fetchJSON(demo ? "demo/inventory.json" : `proxy.py?url=inventory`);
-            }
-            guildsData[currentGuild].guild = await guildsData[currentGuild].guild;
-            viewInventory(inventory);
-            return;
-        case "activity":
-        case "current-status":
-        case "playerStats":
-        case "characters": {
-            let seasons = [...new Set(Object.keys(allSeenSeasons).sort().concat(demo ? [] : 0).map(season => currentGuild.split(",").map(guild => {fetchSelectedSeason(guild, season); return season;})).flat())].map(i=>+i);
-            console.log(seasons);
-            let guilds = currentGuild.split(",");
-            waitingForAllSeasons = await Promise.all(guilds.map(async guild => {
-                return await Promise.all(seasons.map(async season => {
-                    return guildsData[guild][season] = await guildsData[guild][season];
-                }))}));
-            waitingForAllSeasons = waitingForAllSeasons.flat().flat();
-            break;
-        }
-    }
-
-    waitingForData = await Promise.all(currentGuild.split(",").map(guild => {
-        return Promise.all([guildsData[guild][currentSeason], guildsData[guild].guild]);
-    }));
-
-    var [currentRaid, guildData] = waitingForData.reduce(([raid1, guild1],[raid2, guild2]) => {
-        raid = Object.assign({}, raid1);
-        guild = {};
-        guild.guild = Object.assign({}, guild1.guild);
-        raid.entries = raid.entries.concat(raid2.entries);
-        guild.guild.members = guild.guild.members.concat(guild2.guild.members);
-        guild.guild.name += " + " + guild2.guild.name;
-        return [raid, guild];
-    });
-    movement = await movement;
-
-    if (currentRaid.entries.length == 0 && currentRaid.length == undefined) {
-        document.getElementById("current-view").innerHTML = "Season did not start yet";
-        return;
-    }
-
-    switch (currentMode) {
-        case "gw-list":
-            gwsData = await fetchJSON(demo ? "demo/guildwars.json" : "guildwars.json");
-            viewGWs(gwsData);
-            break;
-        case "gw":
-            gwData = await fetchJSON(`proxy.py?url=gw&gw=${selectedGW}`);
-            viewGW(gwData);
-        case "current-status":
-            discordNames = await discordNames;
-            viewStatus(currentRaid, waitingForAllSeasons, guildData);
-            break;
-        case "current-top":
-            viewCurrentTop(5, currentRaid);
-            break;
-        case "laps":
-            viewLaps(currentRaid, guildData);
-            break;
-        case "roster":
-            viewRoster(currentRaid);
-            break;
-        case "bosses": {
-            viewByBoss(true, currentRaid, "default");
-            break;
-        }
-        case "bosses-weighted": {
-            viewByBoss(true, currentRaid, "weighted");
-            break;
-        }
-        case "primes":
-            viewByBoss(false, currentRaid, false);
-            break;
-        case "playerStats":
-            summaryDamage = await summaryDamage;
-            discordNames = await discordNames;
-            if (playerSelected != userName && !hasRights("OFFICER")) {
-                document.getElementById("current-view").innerHTML = "Insufficient rights";
-                return;
-            }
-            if (playerTokens[playerSelected]==undefined) {
-                playerTokens[playerSelected] = await fetchJSON(demo ? "demo/tokens.json" : `proxy.py?url=tokens&player=${playerSelected}`);
-                if (demo) {
-                    var tsNow = new Date()/1000;
-                    playerTokens[playerSelected].lastUpdatedOn += tsNow - playerTokens[playerSelected].fakeCurrentTime;
-                }
-            }
-            viewPlayerStats(playerSelected, currentRaid, waitingForAllSeasons);
-            break;
-        case "simulation":
-            viewSimulation(currentRaid);
-            break;
-            case "characters": {
-                if (!hasRights("OFFICER")) {
-                    document.getElementById("current-view").innerHTML = "Insufficient rights";
-                    return;
-                }
-                viewCharacters(waitingForAllSeasons, guildData);
-                break;
-            }
-        case "log": {
-            discordNames = await discordNames;
-            viewLog(currentRaid, guildData);
-            break;
-        }
-        case "activity": {
-            viewActivity(currentRaid, waitingForAllSeasons, guildData);
-            break;
-        }
-        default:
-            document.getElementById("current-view").innerHTML = `Unknown mode ${currentMode}`;
-    }
-};
-
-function secondsToDaysFixed(seconds, decimals) {
-    let days = Math.floor(seconds/(24*3600));
-    let remain = seconds - days*24*3600;
-    return `${days}d ${Math.floor(remain/3600)}h`;
-};
-
-function secondsToHourFixed(seconds, decimals) {
-    return (seconds/3600).toFixed(1);
-};
-
-function damageToFixedMillion(damage) {
-    return damage ? (damage/1e6).toFixed(2) + "M" : "&nbsp;";
-};
-
-function damageToFixedThousands(damage) {
-    return damage ? (damage/1e3).toFixed(0) + "k" : "&nbsp;";
-};
-
-function damageToFixedWithTombstone(damage, entry) {
-    var prefix = "";
-    if (entry.damageDealt == entry.maxHp)  {
-        prefix = goldMedalEntity;
-    } else if (entry.remainingHp == 0) {
-        prefix = tombStoneEntity;
-    }
-    return prefix + damageToFixedThousands(damage);
-}
-
-function calculateCapped(raidStart, currentTime, tokenTimes, startTokens, moved) {
-    // Calculates when raid tokens are capped and for how long
-    var currentTokens = startTokens;
-    var lastTokenGenerated = tokenTimes[0] > raidStart && tokenTimes[0] < (raidStart+3*raidTokenTimer) ? raidStart : tokenTimes[0];
-    var tokenUse = 0;
-    var cappedTime = 0;
-    const raidEnd = raidStart + 28*raidTokenTimer - 1;
-    currentTime = currentTime > raidEnd ? raidEnd : currentTime;
-
-    tokenTimes.forEach(t => {
-        if (t < raidStart && ((lastTokenGenerated+28*raidTokenTimer) < t)) {
-            lastTokenGenerated = t;
-            currentTokens = startTokens; // Someone who re-joined?
-        }
-        while (t >= lastTokenGenerated + raidTokenTimer && currentTokens < 3) {
-            currentTokens++;
-            lastTokenGenerated += raidTokenTimer;
-        }
-        if (currentTokens == 3) {
-            if (t >= raidStart) {
-                if (lastTokenGenerated < raidStart+2*raidTokenTimer) {
-                    lastTokenGenerated = raidStart+2*raidTokenTimer;
-                }
-                cappedTime += (t-lastTokenGenerated);
-            }
-            lastTokenGenerated = t;
-        }
-        if (t >= raidStart) {
-            tokenUse++;
-        }
-        currentTokens = currentTokens >= 1 ? currentTokens-1 : 0;
-    });
-    while (currentTime >= lastTokenGenerated + raidTokenTimer && currentTokens < 3) {
-        currentTokens++;
-        lastTokenGenerated += raidTokenTimer;
-    }
-    if (currentTokens == 3 && !moved) {
-        cappedTime += (currentTime-Math.max(lastTokenGenerated, raidStart));
-    }
-    return [tokenUse,currentTokens,Math.floor(cappedTime/raidTokenTimer),cappedTime,currentTokens==3 ? 0 : raidTokenTimer-(currentTime-lastTokenGenerated)];
-};
+// View functions
 
 async function viewStatus(currentRaid, allSeasonRaids, guildData) {
     var entries = currentRaid.entries.sort((a,b) => a.completedOn-b.completedOn);
@@ -669,69 +100,6 @@ async function viewStatus(currentRaid, allSeasonRaids, guildData) {
     document.getElementById("current-view").innerHTML = '<table class="tokenTable">' + bossStatus + header + rows + tail + "</table>";
 }
 
-const uniqPlayer = function(a) {
-    var seen = {};
-    return a.filter(it => {
-        id = it["userName"];
-        return id in seen ? false : (seen[id] = true);
-    });
-};
-
-const unitNameImage = function(id, title, _class) {
-    let name = (unitNames.names[id] || {name: id}).name;
-    return `<img title="${title || name}" class="unitThumbnail${_class ? ` ${_class}` : ""}" src="images/${name}.png">`;
-}
-
-function getUnitsUsedSorted(e) {
-    var units = e["heroDetails"].map(h => h["unitId"]).sort();
-    if (e["machineOfWarDetails"]) {
-        units.push(e["machineOfWarDetails"]["unitId"]);
-    }
-    return units;
-}
-
-const unitsUsedStr = function(e) {
-    return getUnitsUsedSorted(e).map(id => unitNameImage(id)).join("");
-};
-
-function unitsUsedSelector(e) {
-    var units = e["heroDetails"].map(h => h["unitId"]);
-    if (e["machineOfWarDetails"]) {
-        units.push(e["machineOfWarDetails"]["unitId"]);
-    }
-    return units.join(",");
-}
-
-const teamPower = function(e) {
-    power = e["heroDetails"].reduce((a, h) => a+h["power"], 0) + (e["machineOfWarDetails"]||{"power":0})["power"];
-    return Math.round(power/1000) + "k";
-};
-
-function getEntriesByBoss(raid) {
-    var bossNames = Array(numBossesPerLap).fill(undefined);
-    var bossHealth = Array(numBossesPerLap).fill(undefined).map(it => Array(3).fill(undefined));
-    var byBoss = Array(numBossesPerLap).fill(undefined).map(it => Array(3).fill(undefined).map(it => []));
-    raid['entries'].forEach(entry => {
-        if (entry['damageType']=="Battle" && entry['tier']>=4) {
-            // Tier 4 = Legendary lap 1, Tier 5 = lap 2, etc
-            var set = entry.set;
-            if (entry.remainingHp == 0 && (entry.type == undefined || entry.type != bossNames[set]) && bossNames.includes(entry.type)) {
-                console.log("Bugfix: https://github.com/SnowprintStudios/tacticus-api/blob/main/CHANGELOG.md#2025-03-21");
-                set = (set+4) % 5;
-                entry.set = set;
-            }
-            if (bossNames[set] == undefined) {
-                bossNames[set] = entry['type'];
-            } else if (bossNames[set] != entry['type']) {
-                console.log("Old bug; wrong boss used, should have been fixed above",entry);
-            }
-            byBoss[set][entry['encounterIndex']].push(entry);
-            bossHealth[set][entry['encounterIndex']] = entry['maxHp'];
-        }
-    });
-    return [bossNames, bossHealth, byBoss];
-}
-
 const viewCurrentTop = async function(N, currentRaid) {
     [bossNames,_,byBoss] = getEntriesByBoss(currentRaid);
     byBoss.forEach(bossesInclSides => bossesInclSides.forEach(boss => {
@@ -785,7 +153,6 @@ const viewRoster = function(currentRaid) {
         curPlayerData["bossDamage"] += entry["damageDealt"];
     });
     var playerDataList = Object.values(playerData).sort((a,b) => {
-        // return (b["bossDamage"]+b["primeDamage"])/(b["bossCount"]+b["primeCount"])-(a["bossDamage"]+a["primeDamage"])/(a["bossCount"]+a["primeCount"]);
         return (b["bossDamage"]+b["primeDamage"])-(a["bossDamage"]+a["primeDamage"]);
     });
     var head = `<table class="rosterTable">
@@ -831,58 +198,6 @@ const viewRoster = function(currentRaid) {
     }).join("\n");
     document.getElementById("current-view").innerHTML = head+rows+tail;
 }
-
-function byBossStats(encounterIndexes, byBoss, mode) {
-    var playerData = {};
-    var totalDamagePerEncounter = [0,0,0];
-    var totalTokenCount = [0,0,0];
-    var topDamage = [0,0,0];
-    var weighted = mode == "weighted";
-    let ignoreKills = mode == "ignore-kills";
-    var byTeam = bossTeamMode == "team";
-    encounterIndexes.forEach(encounterIndex => {
-        byBoss[encounterIndex].forEach(entry => {
-            if ((weighted||ignoreKills) && 0 == entry["remainingHp"] && entry["damageDealt"] < entry["maxHp"]/2) {
-                return;
-            }
-            var id = byTeam ? getUnitsUsedSorted(entry).join(",") : entry["userName"];
-            var curPlayerData;
-            if (!playerData[id]) {
-                playerData[id] = curPlayerData = {dmg: [[],[],[]], totalDmg: 0, name: id, totalDmgByEncounter: [0,0,0], tokenCount: 0};
-            } else {
-                curPlayerData = playerData[id];
-            }
-            var dmg = +entry["damageDealt"];
-            curPlayerData.dmg[encounterIndex].push(dmg);
-            curPlayerData.totalDmg += dmg;
-            curPlayerData.totalDmgByEncounter[encounterIndex] += dmg;
-            curPlayerData.tokenCount++;
-            totalDamagePerEncounter[encounterIndex] += dmg;
-            totalTokenCount[encounterIndex]++;
-            topDamage[encounterIndex] = Math.max(topDamage[encounterIndex], dmg);
-        });
-        if (weighted) {
-            Object.keys(playerData).forEach(player => {
-                let curPlayerData = playerData[player];
-                let dmgLst = curPlayerData.dmg[encounterIndex];
-                if (dmgLst.length <= 1) {
-                    // Can't remove any hits if we only did 1
-                    return;
-                }
-                dmgLst.sort((a,b) => a-b);
-                // Remove the weakest hit from the average to encourage experimentation
-                let ignoreDmg = dmgLst[0];
-                curPlayerData.dmg[encounterIndex] = dmgLst = Array.from(dmgLst.splice(1,dmgLst.length));
-                curPlayerData.totalDmg -= ignoreDmg;
-                curPlayerData.totalDmgByEncounter[encounterIndex] -= ignoreDmg;
-                curPlayerData.tokenCount--;
-                totalDamagePerEncounter[encounterIndex] -= ignoreDmg;
-                totalTokenCount[encounterIndex]--;
-            });
-        }
-    });
-    return {playerData: playerData, totalDamagePerEncounter: totalDamagePerEncounter, totalTokenCount: totalTokenCount, topDamage: topDamage};
-};
 
 async function viewByBoss(isBoss, currentRaid, mode) {
     [bossNames,_,byBoss] = getEntriesByBoss(currentRaid);
@@ -977,9 +292,6 @@ async function viewByBoss(isBoss, currentRaid, mode) {
             sortEntries();
         }
         allPlayerWeightedEntries = allPlayerWeightedEntries.map(([player,total,count,allTokens,countPenalty]) => {
-            // We penalize for each token below the expected (28-1)
-            // But tokens used pre-legendary or for kill shots should not affect the average
-            // So we scale with count/allTokens
             let penaltyCount = count*Math.max(0, mostTokensUsed-allTokens-1)/allTokens;
             return [player,total,count,allTokens,countPenalty+penaltyCount];
         });
@@ -1023,7 +335,7 @@ async function viewPlayerStats(playerSelected, currentRaid, allSeasonRaids) {
 
     const {playerDamageScaled: weights, playerActualTokenUsage: playerActualTokenUsage, bossNames: bossNames, guildAverageDamage: guildAverageDamage, playerDamageScalingFactor: playerDamageScalingFactor} = getOptimalWeights(currentRaid, undefined, true, currentRaid.season);
     const seasonStart = currentRaid.entries[0].completedOn;
-   
+
     weightRows = range(0,(weights[playerSelected]||[]).length-1,1).map(set => {
         let cells = [0,1,2].map(encounterIndex => {
             let weight = weights[playerSelected][set][encounterIndex];
@@ -1133,7 +445,7 @@ async function viewPlayerStats(playerSelected, currentRaid, allSeasonRaids) {
                 allGuildNamesInOrder.map(name => {
                     const scaling = summaryDamage[name][raid.season];
                     if (scaling == undefined) {
-                        return 
+                        return
                     }
                     const damageRelative = playerEntries.reduce((partialSum, e) => partialSum + (scaleDamageFromTokens * e.damageDealt / (scaling[e.set][0] * numBossHits)), 0);
                     return `<td class="damage" style="background-color: ${getColorPercent(damageRelative)};">${Math.floor(damageRelative*100)}%</td>`;
@@ -1147,7 +459,7 @@ async function viewPlayerStats(playerSelected, currentRaid, allSeasonRaids) {
 
     document.getElementById("current-view").innerHTML = `<h3>${playerSelected} season ${currentRaid.season}</h3>` + weightsTable + tokensTable + head + rows + tail + unitTable + historyRelativeStatsTable;
     updateSelectedPlayerUnitSortMode();
-};
+}
 
 function updateSelectedPlayerUnitSortMode(mode) {
     if (mode != undefined) {
@@ -1199,10 +511,6 @@ function updateSelectedPlayerUnitSortMode(mode) {
     `;
 }
 
-function toDateStr(t) {
-    return new Date(t*1000).toLocaleString("en-US", {month: 'short', day: '2-digit', hour: '2-digit', hour12: false, minute: '2-digit', timeZone: systemTimeZone});
-}
-
 function viewLaps(currentRaid, currentGuild) {
     [bossNames,_,byBoss] = getEntriesByBoss(currentRaid);
     let season = currentRaid["season"];
@@ -1246,86 +554,16 @@ function viewLaps(currentRaid, currentGuild) {
     let tail = `</table>`;
 
     document.getElementById("current-view").innerHTML = head + bossNameRow + rows + tail;
-};
-
-function getOptimalWeights(currentRaid, startTokens, includeMovedPlayers, season) {
-    const [bossNames,bossHealth,byBoss] = getEntriesByBoss(currentRaid);
-    const encounterIndexes = [0,1,2];
-    let stats = [];
-    let playerDamageAvg = {};
-    let playerDamageScaled = {};
-    let playerDamageScalingFactor = {};
-    let playerDamageByBoss = Array(numBossesPerLap).fill(undefined).map(it => Array(3).fill(undefined).map(it => []));
-    let playerActualTokenUsage = {};
-    let playerTokens = {};
-    let playerTokenValue = {}; // Relative value to the rest of the guild based on bosses not hit
-    let playerTokensUsed = {};
-    let guildAverageDamage = [[[],[],[]],[[],[],[]],[[],[],[]],[[],[],[]],[[],[],[]],[[],[],[]]];
-    range(0,5,1).forEach(i => {
-        stats[i] = byBossStats(encounterIndexes, byBoss[i], "weighted");
-        encounterIndexes.forEach(encounterIndex => {
-            guildAverageDamage[i][encounterIndex] = Math.floor(stats[i].totalDamagePerEncounter[encounterIndex] / stats[i].totalTokenCount[encounterIndex]);
-            Object.keys(stats[i].playerData).forEach(player => {
-                if (!includeMovedPlayers && (movement[season]||[]).includes(player)) {
-                    return;
-                }
-                let playerStats = stats[i].playerData[player];
-                let attacks = playerStats.dmg[encounterIndex];
-                let playerAvg = attacks.length ? Math.floor(attacks.reduce((a,b) => a+b,0) / attacks.length) : 0;
-                playerDamageScaled[player] = playerDamageScaled[player] || [[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0]];
-                playerDamageScaled[player][i][encounterIndex] = playerAvg ? playerAvg / guildAverageDamage[i][encounterIndex] : 0;
-                playerDamageAvg[player] = playerDamageAvg[player] || [[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0]];
-                playerDamageAvg[player][i][encounterIndex] = playerAvg;
-            });
-        });
-    });
-    Object.keys(playerDamageScaled).forEach(player => {
-        let maxDmg = Math.max(...playerDamageScaled[player].flat());
-        playerDamageScalingFactor[player] = maxDmg;
-        let tokenCount = 0;
-        playerActualTokenUsage[player] = Array(numBossesPerLap).fill(undefined).map(it => Array(3).fill(0));
-        
-        playerTokenValue[player] = range(0,4,1).map(boss => {
-            if (stats[boss].playerData[player] == undefined) {
-                return 0;
-            }
-            tokenCount += stats[boss].playerData[player].tokenCount;
-            let dmg = encounterIndexes.map(encounterIndex => {
-                let n = stats[boss].playerData[player].dmg[encounterIndex].length;
-                return playerDamageScaled[player][boss][encounterIndex] * n;
-            }).reduce((a,b) => a+b, 0);
-            return dmg;
-        }).reduce((a,b) => a+b, 0) / tokenCount;
-        playerDamageScaled[player] = playerDamageScaled[player].map(a => a.map(d => d / maxDmg));
-        playerTokens[player] = startTokens;
-        playerTokensUsed[player] = [[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0]];
-        range(0,5,1).forEach(boss => encounterIndexes.forEach(encounterIndex => {
-            playerDamageByBoss[boss][encounterIndex].push({"player": player, "weight": playerDamageScaled[player][boss][encounterIndex]});
-        }));
-    });
-    range(0,5,1).forEach(boss => encounterIndexes.forEach(encounterIndex => {
-        playerDamageByBoss[boss][encounterIndex].sort((a,b) => b.weight == a.weight ? playerDamageAvg[b.player][boss][encounterIndex] - playerDamageAvg[a.player][boss][encounterIndex] : b.weight - a.weight);
-    }));
-    currentRaid.entries.forEach(entry => {
-        if (entry.damageType!="Battle" || entry.tier<4) {
-            return;
-        }
-        if (playerActualTokenUsage[entry.userName] == undefined) {
-            return; // Someone who quit before legendary
-        }
-        playerActualTokenUsage[entry.userName][entry.set][entry.encounterIndex]++;
-    });
-    return {stats: stats, playerDamageAvg: playerDamageAvg, playerDamageScaled: playerDamageScaled, playerDamageByBoss: playerDamageByBoss, playerActualTokenUsage: playerActualTokenUsage, playerTokens: playerTokens, playerTokenValue: playerTokenValue, playerTokensUsed: playerTokensUsed, guildAverageDamage: guildAverageDamage, bossNames: bossNames, bossHealth: bossHealth, byBoss: byBoss, playerDamageScalingFactor: playerDamageScalingFactor};
 }
 
 function viewSimulation(currentRaid) {
     const startTokens = 2;
     const {playerDamageAvg: playerDamageAvg, playerDamageScaled: playerDamageScaled, playerDamageByBoss: playerDamageByBoss, playerActualTokenUsage: playerActualTokenUsage, playerTokens: playerTokens, playerTokenValue: playerTokenValue, playerTokensUsed: playerTokensUsed, guildAverageDamage: guildAverageDamage, bossNames: bossNames, bossHealth: bossHealth} = getOptimalWeights(currentRaid, startTokens, false, currentRaid.season);
-    let tokenRefreshes = 26-startTokens; // 28 tokens - 1 for nonlegendary - 1 more
+    let tokenRefreshes = 26-startTokens;
     let done = false;
     let numEstimated = 0;
     let lastKilledBoss = [0,0];
-    
+
     range(1,12,1).forEach(lap => {
         range(0,4,1).forEach(boss => {
             range(2,0,-1).forEach(encounterIndex => {
@@ -1342,7 +580,7 @@ function viewSimulation(currentRaid) {
                     console.log(`Skipping ${bossFriendlyName(boss,encounterIndex)} (we usually do not attack it)`);
                     return;
                 }
-                
+
                 console.log(`Boss health ${bossName} ${currentHealth}`);
                 function useTokens(entry,minTokens,minWeight) {
                     if (currentHealth <= 0) {
@@ -1362,7 +600,6 @@ function viewSimulation(currentRaid) {
                     currentHealth -= dmg;
                     playerTokens[entry.player]--;
                     playerTokensUsed[entry.player][boss][encounterIndex]++;
-                    // console.log(`Token used by ${entry.player} vs ${bossName} for ${dmg} dmg`);
                 }
                 while (!done) {
                     playerDamageByBoss[boss][encounterIndex].forEach(entry => useTokens(entry,3,0));
@@ -1397,10 +634,10 @@ function viewSimulation(currentRaid) {
     });
     function tokenUsageCell(player, boss, encounterIndex) {
         return `<td ${encounterIndex==0 ? 'colspan="2" ' : ''}class="tokenCount${encounterIndex == 0 ? "TopRow" : ""} ${playerDamageAvg[player][boss][encounterIndex] || !playerTokensUsed[player][boss][encounterIndex] ? '' : ' estimate'}">${playerTokensUsed[player][boss][encounterIndex]}</td>`;
-    };
+    }
     function actualTokenUsageCell(player, boss, encounterIndex) {
         return `<td ${encounterIndex==0 ? 'colspan="2" ' : ''}class="tokenCount${encounterIndex == 0 ? "TopRow" : ""}">${playerActualTokenUsage[player][boss][encounterIndex]}</td>`;
-    };
+    }
     rows = Object.keys(playerTokensUsed).sort().map(player => {
         cells1 = range(0,4,1).map(boss => `<td><table class="tokenCountTable"><tr>${tokenUsageCell(player,boss,0)}</tr><tr>${tokenUsageCell(player,boss,1)}${tokenUsageCell(player,boss,2)}</tr></table></td>`).join("");
         return `<tr>${memberCell(player, currentRaid.season)}${cells1}</tr>`;
@@ -1410,37 +647,6 @@ function viewSimulation(currentRaid) {
     <tr><th>Name</th>${x = range(1,5,1).map(boss => `<th>L${boss}</th>`).join(""), x}</tr>
     ${rows.join("\n")}
     </table>`;
-};
-
-function getCharactersFromRaids(members, entries, teamMembers) {
-    var characters = {};
-    var teamUsedCount = {};
-    var teamMaxDamage = {};
-    members.forEach(member => {
-        characters[member.userName] = {};
-    });
-    entries.forEach(entry => {
-        if (entry["damageType"]!="Battle") {
-            return;
-        }
-        let name = entry["userName"];
-        if (characters[name] == undefined) {
-            return;
-        }
-        let mow = entry["machineOfWarDetails"];
-        var heroesThisRaid = entry["heroDetails"].map(hero => hero.unitId).concat(mow ? [mow.unitId] : []);
-        entry["heroDetails"].forEach(hero => {
-            characters[name][hero.unitId] = Math.max(characters[name][hero.unitId]||0,hero.power);
-        });
-        if (mow) {
-            characters[name][mow.unitId] = Math.max(characters[name][mow.unitId]||0,mow.power);
-        }
-        if (entry["tier"]>=4 && teamMembers.reduce((a,b) => a && heroesThisRaid.includes(b),true)) {
-            teamUsedCount[name] = (teamUsedCount[name]||0) + 1;
-            teamMaxDamage[name] = Math.max(teamMaxDamage[name]||0, entry["damageDealt"]);
-        }
-    });
-    return {"characters": characters, "teamUsedCount": teamUsedCount, "teamMaxDamage": teamMaxDamage};
 }
 
 async function viewCharacters(allRaids, guildData) {
@@ -1476,43 +682,6 @@ async function viewCharacters(allRaids, guildData) {
         return `${highlightRow(name)}${memberCell(name, undefined)}<td class="damage">${membersLevel[name]}</td><td class="count">${Object.keys(characters[name]).length}</td><td class="damage">${damageToFixedMillion(Object.values(characters[name]).reduce((a,b) => a+b, 0))}</td><td>${teamImage}</td><td class="damage">${damageToFixedMillion(team.reduce((a,b)=>a+b,0))}</td><td class="count">${teamUsedCount[name]||""}</td><td class="damage">${damageToFixedThousands(teamMaxDamage[name]||0)}</td></tr>`;
     }).join("\n");
     document.getElementById("current-view").innerHTML = head + rows + tail;
-};
-
-async function setAPIToken(event) {
-    event.preventDefault();
-    const userId = document.getElementById("user-id").value;
-    const apiKey = document.getElementById("api-key").value;
-    let result = await fetch("login.py", {
-        method: "GET",
-        headers: {
-            "X-USER-ID": userId,
-            "X-API-KEY": apiKey
-        }
-    }).then(response => {
-        console.log(response);
-        if (!response.ok) {
-            return {"Failed": response.status};
-        } else {
-            localStorage.setItem("user-id", userId);
-            localStorage.setItem("api-key", apiKey);
-            return response.json();
-        }
-    });
-    if (result.userName) {
-        localStorage.setItem("user-name", userName = result.userName);
-        localStorage.setItem("user-guild-role", userGuildRole = result.role);
-        document.getElementById("api-response").innerHTML = `Logged in as ${userName}. Refresh the page to access the database.`;
-        window.location.reload();
-    } else {
-        document.getElementById("api-response").innerHTML = JSON.stringify(result);
-    }
-}
-
-function removeOfficerRights(event) {
-    console.log("???");
-    event.preventDefault();
-    localStorage.setItem("user-guild-role", userGuildRole = "MEMBER");
-    window.location.reload();
 }
 
 function upgradeInfo(upg) {
@@ -1627,21 +796,6 @@ function updateActivityFilterBombs() {
     updateCurrentView();
 }
 
-function showKeys() {
-    var type = document.getElementById("show-keys").checked ? "text" : "password";
-    document.getElementById("user-id").type = type;
-    document.getElementById("api-key").type = type;
-}
-
-function setHighlightUser() {
-    highlightUser = document.getElementById("highlight-user").checked;
-    localStorage.setItem("highlight-user", highlightUser);
-}
-
-function highlightRow(id) {
-    return `<tr${highlightUser && id == userName ? ' class="loggedInPlayer"': ""}>`;
-}
-
 function logRows(entries, season, showPlayerName) {
     return entries.map(entry => {
         var tier = entry['tier'] > 4 ? 4 : entry.tier;
@@ -1673,7 +827,7 @@ function logRows(entries, season, showPlayerName) {
         <td>${isBomb ? "&nbsp;" : `<a href="javascript:navigator.clipboard.writeText('${clipboardText}');">${clipboardEntity}</a>`}</td>
         <td class="damage">${damageToFixedThousands(power)}</td>
         </tr>`;
-    }).reverse().join("");    
+    }).reverse().join("");
 }
 
 async function viewLog(currentRaid, guildData) {
@@ -1721,7 +875,7 @@ async function viewGWs(gwsData) {
     }).join("\n")}
     </ul>
     `
-};
+}
 
 async function viewGW(gwData) {
     unitNames = await unitNames;
@@ -1895,7 +1049,7 @@ async function viewGW(gwData) {
     <tr><td>Location</td><td colspan=3>Attacker</td><td colspan=3>Defender</td></tr>
     ${rowsDefence.join("\n")}
     </table>
-    
+
     <table>
     <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><th colspan="3">Ratio</th></tr>
     <tr><td>Name</td><td>Wins</td><td>Attempts</td><td>Kills</td><td><img class="unitThumbnail" src="images/${medicaeBuff}.png" /></td><td><img class="unitThumbnail dead" src="images/${medicaeBuff}.png" /></td><td>Overall</td></tr>
@@ -2029,70 +1183,3 @@ async function viewGW(gwData) {
     </table>
     `;
 }
-
-function getTokenTimes(currentRaid, entries, guildData) {
-    const ts = Date.now() / 1000;
-    const tsBombsAgo = ts - 18*60*60;
-
-    const raidStart = currentRaid.season == 70 ? season70start : currentRaid.entries[0].startedOn-24*60*60; // Pretend we start at previous season end
-    const raidEnd = raidStart+14*24*60*60;
-
-    var allMembers = {};
-    var legendaryTokenCount = {};
-    var damageCount = {};
-    var playerBombTimes = {};
-    var playerRaidTimes = {};
-    var maxBombDamage = 0;
-    var minBombDamage = undefined;
-    var hasBomb = {};
-
-    guildData.guild.members.forEach(member => {
-        allMembers[member.userName] = true;
-    });
-
-    entries.forEach(entry => {
-        var name = entry.userName;
-        if (entry.startedOn > raidEnd) {
-            return;
-        }
-        if (entry.damageType=="Bomb" && entry.damageDealt > maxBombDamage) {
-            maxBombDamage = entry.damageDealt;
-            if (minBombDamage==undefined) {
-                minBombDamage = maxBombDamage;
-            }
-        }
-        if (entry.damageType=="Bomb" && entry.startedOn < raidStart) {
-            return;
-        }
-        if (entry.damageType=="Bomb" && (entry.damageDealt < minBombDamage) && entry.remainingHp) {
-            minBombDamage = entry.damageDealt;
-        }
-        var playerTimes = entry.damageType=="Bomb" ? playerBombTimes : playerRaidTimes;
-        if (!playerTimes[name]) {
-            playerTimes[name] = [];
-        }
-        if (entry.startedOn >= raidStart && entry.damageType=="Battle" && entry.tier>=4) {
-            if (!damageCount[name]) {
-                damageCount[name] = 0;
-            }
-            damageCount[name] = (damageCount[name]||0) + entry.damageDealt;
-            legendaryTokenCount[name] = 1 + (legendaryTokenCount[name]||0);
-        }
-        playerTimes[name].push(entry.startedOn);
-        allMembers[name] = true;
-    });
-
-    console.log(`Bomb damage is ${minBombDamage}~${maxBombDamage}`)
-
-    var playerBombTimesInverse = Object.keys(allMembers).map(id => {
-        var bombs = playerBombTimes[id] || [];
-        var t = bombs.at(-1) || 0;
-        hasBomb[id] = t < tsBombsAgo;
-        return [t < tsBombsAgo ? 0 : t, id, bombs.length];
-    });
-    playerBombTimesInverse.sort(function (a,b) {
-        return a[0]==b[0] ? (a[1]==b[1] ? a[2].localCompare(b[2]) : a[1] - b[1]) : a[0] - b[0];
-    });
-    return {legendaryTokenCount: legendaryTokenCount, damageCount: damageCount, playerRaidTimes: playerRaidTimes, maxBombDamage: maxBombDamage, minBombDamage: minBombDamage, playerBombTimesInverse: playerBombTimesInverse, tsBombsAgo: tsBombsAgo, raidStart: raidStart, ts: ts, hasBomb: hasBomb};
-}
-

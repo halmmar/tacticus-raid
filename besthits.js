@@ -1,9 +1,11 @@
 var vm = require("vm");
 var fs = require('fs');
 
-var data = fs.readFileSync('./tacticusraid.js');
-const script = new vm.Script(data);
-script.runInThisContext();
+["./js/utils.js","./js/constants.js","./js/api.js","./js/state.js","./js/boss.js","./js/views.js"].forEach(f => {
+    var data = fs.readFileSync(f);
+    const script = new vm.Script(data);
+    script.runInThisContext();
+});
 
 const files = fs.readdirSync(".secrets/.season", { recursive: true });
 
