@@ -1,18 +1,3 @@
-var getJSON = function(url, callback) {
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', url, true);
-    xhr.responseType = 'json';
-    xhr.onload = function() {
-    var status = xhr.status;
-    if (status === 200) {
-      callback(null, xhr.response);
-    } else {
-      callback(status, xhr.response);
-    }
-    };
-    xhr.send();
-};
-
 const goldMedalEntity = "&#x1F947;" // 🥇
 const tombStoneEntity = "&#x1FAA6;"; // 🪦
 const clipboardEntity = "&#x1F4CB;"; // 📋
@@ -33,37 +18,37 @@ const raidTokenTimer = 12*60*60;
 
 const expectedTokensPerSeason = 26; // Could be allowed to be 27...
 
-activityFilterBombs = true;
-highlightUser = undefined;
-userName = undefined;
-userGuildRole = undefined;
-currentTeam = "admecDominus,admecManipulus,admecMarshall,admecRuststalker,tauMarksman,ultraDreadnought";
-guildsData = {};
-unitNames = {};
-currentGuild = '';
+let activityFilterBombs = true;
+let highlightUser = undefined;
+let userName = undefined;
+let userGuildRole = undefined;
+let currentTeam = "admecDominus,admecManipulus,admecMarshall,admecRuststalker,tauMarksman,ultraDreadnought";
+let guildsData = {};
+let unitNames = {};
+let currentGuild = '';
 const currentGuildToGuildName = new Map();
-currentMode = 'playerStats';
-currentSeason = 0;
-playerSelected = '';
-movement = {};
-allSeenSeasons = {};
-playerUnits = {};
-discordNames = {};
-summaryDamage = {};
-bossSortMode = undefined;
-bossVsMode = 'Top';
-weightedSortMode = "final";
-bossTeamMode = "player";
-playerTokens = {};
-statusSortMode = 'bomb';
-inventory = undefined;
-upgradeSelected = undefined;
-playerUnitsSortMode = undefined;
-selectedPlayerUnits = undefined;
-selectedGW = undefined;
-initialized = false;
+let currentMode = 'playerStats';
+let currentSeason = 0;
+let playerSelected = '';
+let movement = {};
+let allSeenSeasons = {};
+let playerUnits = {};
+let discordNames = {};
+let summaryDamage = {};
+let bossSortMode = undefined;
+let bossVsMode = 'Top';
+let weightedSortMode = "final";
+let bossTeamMode = "player";
+let playerTokens = {};
+let statusSortMode = 'bomb';
+let inventory = undefined;
+let upgradeSelected = undefined;
+let playerUnitsSortMode = undefined;
+let selectedPlayerUnits = undefined;
+let selectedGW = undefined;
+let initialized = false;
 
-allGuildNamesInOrder = [];
+let allGuildNamesInOrder = [];
 
 const ranksName = ["Stone1","Stone2","Stone3","Iron1","Iron2","Iron3","Bronze1","Bronze2","Bronze3","Silver1","Silver2","Silver3","Gold1","Gold2","Gold3","Diamond1","Diamond2","Diamond3","Adamantine1","Adamantine2","Adamantine3"];
 const progressionIndexStarName = {"s": "star small","S":"star","r":"red star small","R":"red star","w":"white star","W": "white star", "M":"mythic star"};
@@ -80,9 +65,9 @@ const progressionIndexStarsDiscord = progressionIndexNumStars.map(stars => {
 });
 const progressionIndexRarityStarsText = ["C 0S","C 1S","C 2S","U 2S","U 3S","U 4S","R 4S","R 5S","R 1R","E 1R","E 2R","E 3R","L 3R","L 4R","L 5R","L 1W","M 1W","M 2W","M 3W","M MS"];
 
-tierToRarityName = ["Common","Uncommon","Rare","Epic","Legendary"];
+const tierToRarityName = ["Common","Uncommon","Rare","Epic","Legendary"];
 
-var bossFriendlyNames = {
+const bossFriendlyNames = {
     "AvatarOfKhaine": ["Avatar", "Aethana", "Eldryon"],
     "Belisarius": ["Belisarius Cawl", "Tan Gi'da", "Actus"],
     "BelisariusRW": ["Belisarius Cawl", "Tan Gi'da", "Actus"],
@@ -106,7 +91,7 @@ function hasRights(role) {
     return (roleValue[userGuildRole]||0) >= (roleValue[role]||0);
 }
 
-var bossFriendlyName = function(name, encounterIndex) {
+const bossFriendlyName = function(name, encounterIndex) {
     return (bossFriendlyNames[name] || [name, name + " left prime", name + " right prime"])[encounterIndex];
 };
 
@@ -125,7 +110,7 @@ function memberCell(name, season) {
 
 function getColorPercent(value) {
     //value from 0=red to 1=green
-    var hue = (value * 120).toString(10);
+    const hue = (value * 120).toString(10);
     return ["hsl(", hue, ",100%,50%)"].join("");
 }
 
@@ -150,7 +135,7 @@ function range(start, stop, step) {
 	);
 }
 
-var fetchJSON = function(url) {
+const fetchJSON = function(url) {
   return fetch(url, {
         method: "GET",
         headers: {"X-USER-ID": localStorage.getItem("user-id"), "X-API-KEY": localStorage.getItem("api-key")}}).then(response => {
@@ -161,7 +146,7 @@ var fetchJSON = function(url) {
   });
 };
 
-var createSeason = function(i) {
+const createSeason = function(i) {
     var id = `seasonSelectSeason${i}`;
     if (i && !document.getElementById(id)) {
         seasonSelect.innerHTML += `<option id="${id}" value="${i}">Season ${i}</option>`
@@ -169,7 +154,7 @@ var createSeason = function(i) {
     allSeenSeasons[i] = i;
 };
 
-var notifyGuildData = function(guild) {
+const notifyGuildData = function(guild) {
     var seasons = guild["guild"]["guildRaidSeasons"].slice(0,-1);
     seasonSelect = document.getElementById("seasonSelect");
     seasons.forEach(createSeason);
@@ -182,7 +167,7 @@ function notifyCurrentSeason(raidData) {
     return raidData;
 }
 
-var initialize = async function() {
+const initialize = async function() {
     if (demo) {
         playerSelected = userName = "Rilak";
         userGuildRole = "OFFICER";
@@ -364,7 +349,7 @@ function lastHitCurrentBoss(currentRaid, bombsAvailable, minBombDamage, maxBombD
     return res.join("\n");
 }
 
-var updateCurrentView = async function(newMode) {
+const updateCurrentView = async function(newMode) {
     if (!initialized) {
         document.getElementById("current-view").innerHTML = `Loading...`;
         return;
@@ -684,7 +669,7 @@ async function viewStatus(currentRaid, allSeasonRaids, guildData) {
     document.getElementById("current-view").innerHTML = '<table class="tokenTable">' + bossStatus + header + rows + tail + "</table>";
 }
 
-var uniqPlayer = function(a) {
+const uniqPlayer = function(a) {
     var seen = {};
     return a.filter(it => {
         id = it["userName"];
@@ -692,7 +677,7 @@ var uniqPlayer = function(a) {
     });
 };
 
-var unitNameImage = function(id, title, _class) {
+const unitNameImage = function(id, title, _class) {
     let name = (unitNames.names[id] || {name: id}).name;
     return `<img title="${title || name}" class="unitThumbnail${_class ? ` ${_class}` : ""}" src="images/${name}.png">`;
 }
@@ -705,7 +690,7 @@ function getUnitsUsedSorted(e) {
     return units;
 }
 
-var unitsUsedStr = function(e) {
+const unitsUsedStr = function(e) {
     return getUnitsUsedSorted(e).map(id => unitNameImage(id)).join("");
 };
 
@@ -717,7 +702,7 @@ function unitsUsedSelector(e) {
     return units.join(",");
 }
 
-var teamPower = function(e) {
+const teamPower = function(e) {
     power = e["heroDetails"].reduce((a, h) => a+h["power"], 0) + (e["machineOfWarDetails"]||{"power":0})["power"];
     return Math.round(power/1000) + "k";
 };
@@ -747,7 +732,7 @@ function getEntriesByBoss(raid) {
     return [bossNames, bossHealth, byBoss];
 }
 
-var viewCurrentTop = async function(N, currentRaid) {
+const viewCurrentTop = async function(N, currentRaid) {
     [bossNames,_,byBoss] = getEntriesByBoss(currentRaid);
     byBoss.forEach(bossesInclSides => bossesInclSides.forEach(boss => {
         boss.sort((a,b) => b["damageDealt"]-a["damageDealt"]);
@@ -768,7 +753,7 @@ var viewCurrentTop = async function(N, currentRaid) {
     document.getElementById("current-view").innerHTML = bossesHtml;
 };
 
-var viewRoster = function(currentRaid) {
+const viewRoster = function(currentRaid) {
     if (!hasRights("OFFICER")) {
         document.getElementById("current-view").innerHTML = "";
         return;
