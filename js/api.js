@@ -92,6 +92,7 @@ const initialize = async function() {
     } else {
         if (localStorage.getItem("user-id") == undefined || localStorage.getItem("api-key") == undefined || localStorage.getItem("user-name")==undefined) {
             currentMode = 'login';
+            initialized = true;
             updateCurrentView();
             return;
         }
