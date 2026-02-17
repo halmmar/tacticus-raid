@@ -824,6 +824,16 @@
             "grandAlliance": "Chaos",
             "name": "Ahriman"
         },
+        "thousDaemonPrince": {
+            "abilities": [
+                "AetherStride",
+                "InfernalCannon",
+                "CabalOfSorcerers"
+            ],
+            "faction": "ThousandSons",
+            "grandAlliance": "Chaos",
+            "name": "Z'Kar"
+        },
         "thousInfernalMaster": {
             "abilities": [
                 "MasterOfTheTutelaries",
@@ -978,6 +988,15 @@
             "faction": "Ultramarines",
             "grandAlliance": "Imperial",
             "name": "Titus"
+        },
+        "votanIronmaster": {
+            "abilities": [
+                "GravitonRifle",
+                "EcogSupport"
+            ],
+            "faction": "LeaguesOfVotann",
+            "grandAlliance": "Xenos",
+            "name": "Vynn"
         },
         "worldEightbound": {
             "abilities": [
