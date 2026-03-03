@@ -1,6 +1,22 @@
 var vm = require("vm");
 var fs = require('fs');
 
+function sortOnKeys(dict) {
+
+    var sorted = [];
+    for(var key in dict) {
+        sorted[sorted.length] = key;
+    }
+    sorted.sort();
+
+    var tempDict = {};
+    for(var i = 0; i < sorted.length; i++) {
+        tempDict[sorted[i]] = dict[sorted[i]];
+    }
+
+    return tempDict;
+}
+
 ["./js/utils.js","./js/constants.js","./js/api.js","./js/state.js","./js/boss.js","./js/views.js"].forEach(f => {
     var data = fs.readFileSync(f);
     const script = new vm.Script(data);
@@ -46,6 +62,8 @@ gwFiles.forEach(f => {
     wars[warName] = fname;
     fs.writeFileSync(`.secrets/.gw-filtered/${fname}`, JSON.stringify(war), 'utf8');
 });
+
+wars = sortOnKeys(wars);
 
 fs.writeFileSync(`guildwars.json`, JSON.stringify(wars), 'utf8');
 

@@ -353,6 +353,16 @@
             "grandAlliance": "Imperial",
             "name": "Sarquael"
         },
+        "darkaStormSpeeder": {
+            "abilities": [
+                "DeathOnTheWind",
+                "Hailstrike",
+                "MastersOfManoeuvre"
+            ],
+            "faction": "DarkAngels",
+            "grandAlliance": "Imperial",
+            "name": "Storm Speeder"
+        },
         "darkaTerminator": {
             "abilities": [
                 "PlasmaCannon",
