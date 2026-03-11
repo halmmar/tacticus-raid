@@ -1008,6 +1008,15 @@
             "grandAlliance": "Xenos",
             "name": "Vynn"
         },
+        "votanUthar": {
+            "abilities": [
+                "AncestralFortune",
+                "GrimEfficiency"
+            ],
+            "faction": "LeaguesOfVotann",
+            "grandAlliance": "Xenos",
+            "name": "Uthar"
+        },
         "worldEightbound": {
             "abilities": [
                 "OverwhelmingWrath",
