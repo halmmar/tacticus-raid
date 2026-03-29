@@ -18,7 +18,7 @@ const season70start = 1741687200;
 const knownFinishedSeasons = demo ? [83] : range(70, 69+(((Date.now() / 1000)-season70start)/1209600), 1);
 
 // Raid configuration
-const numBossesPerLap = 6;
+const numBossesPerLap = 7;
 const raidTokenTimer = 12*60*60;
 const expectedTokensPerSeason = 26;
 

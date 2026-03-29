@@ -160,7 +160,7 @@ function getOptimalWeights(currentRaid, startTokens, includeMovedPlayers, season
     let playerTokens = {};
     let playerTokenValue = {}; // Relative value to the rest of the guild based on bosses not hit
     let playerTokensUsed = {};
-    let guildAverageDamage = [[[],[],[]],[[],[],[]],[[],[],[]],[[],[],[]],[[],[],[]],[[],[],[]]];
+    let guildAverageDamage = [[[],[],[]],[[],[],[]],[[],[],[]],[[],[],[]],[[],[],[]],[[],[],[]],[[],[],[]]];
     range(0,5,1).forEach(i => {
         stats[i] = byBossStats(encounterIndexes, byBoss[i], "weighted");
         encounterIndexes.forEach(encounterIndex => {
@@ -172,9 +172,9 @@ function getOptimalWeights(currentRaid, startTokens, includeMovedPlayers, season
                 let playerStats = stats[i].playerData[player];
                 let attacks = playerStats.dmg[encounterIndex];
                 let playerAvg = attacks.length ? Math.floor(attacks.reduce((a,b) => a+b,0) / attacks.length) : 0;
-                playerDamageScaled[player] = playerDamageScaled[player] || [[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0]];
+                playerDamageScaled[player] = playerDamageScaled[player] || [[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0]];
                 playerDamageScaled[player][i][encounterIndex] = playerAvg ? playerAvg / guildAverageDamage[i][encounterIndex] : 0;
-                playerDamageAvg[player] = playerDamageAvg[player] || [[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0]];
+                playerDamageAvg[player] = playerDamageAvg[player] || [[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0]];
                 playerDamageAvg[player][i][encounterIndex] = playerAvg;
             });
         });
