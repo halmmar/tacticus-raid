@@ -142,6 +142,9 @@ const initialize = async function() {
         currentGuildToGuildName.set(guild[0], guild[2]);
     });
     document.getElementById("guildSelect").innerHTML = config.guildsList.map(guild => `<option value="${guild[0]}">${guild[1]}</option>`).join("\n");
+    if (!demo) {
+        document.getElementById("guildSelect").value = localStorage.getItem("guildSelect") || "";
+    }
 
     updateGuild();
 
