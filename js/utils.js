@@ -43,7 +43,7 @@ function secondsToHourFixed(seconds, decimals) {
 }
 
 function toDateStr(t) {
-    return new Date(t*timeStampDivisor).toLocaleString("en-US", {month: 'short', day: '2-digit', hour: '2-digit', hour12: false, minute: '2-digit', timeZone: systemTimeZone});
+    return new Date(t).toLocaleString("en-US", {month: 'short', day: '2-digit', hour: '2-digit', hour12: false, minute: '2-digit', timeZone: systemTimeZone});
 }
 
 // Damage formatting functions

@@ -18,7 +18,7 @@ const season70start = 1741687200;
 const knownFinishedSeasons = demo ? [83] : range(70, 69+(((Date.now() / 1000)-season70start)/1209600), 1);
 
 // TimeStamp divisor
-const timeStampDivisor = 1;
+const timeStampDivisor = 1000;
 
 // Raid configuration
 const numBossesPerLap = 7;

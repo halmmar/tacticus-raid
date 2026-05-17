@@ -19,9 +19,9 @@ allMembers = {}
 res = api_get("/api/v1/guildRaid", key=list(keys.keys())[0])
 currentSeason = int(res["season"])
 
-for member in members.keys():
-  if members[member].get("role") == "ADMIN":
-    allMembers[member["userId"]] = "ADMIN"
+for uid in members.keys():
+  if members[uid].get("role") == "ADMIN":
+    allMembers[uid] = "ADMIN"
 
 for guild in keys.keys():
   res = api_get("/api/v1/guild", key=guild)
