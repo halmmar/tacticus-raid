@@ -19,6 +19,10 @@ allMembers = {}
 res = api_get("/api/v1/guildRaid", key=list(keys.keys())[0])
 currentSeason = int(res["season"])
 
+for member in members.keys():
+  if members[member].get("role") == "ADMIN":
+    allMembers[member["userId"]] = "ADMIN"
+
 for guild in keys.keys():
   res = api_get("/api/v1/guild", key=guild)
   if "guild" not in res:
@@ -29,7 +33,8 @@ for guild in keys.keys():
     message = cacheRaidData(guild, season)
     if message:
       raise Exception(message)
-  
+
+
 
 with open(".secrets/playerids.json","w") as fout:
   json.dump({"playerIds": allMembers}, fout)
