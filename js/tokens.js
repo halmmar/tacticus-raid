@@ -43,7 +43,7 @@ function calculateCapped(raidStart, currentTime, tokenTimes, startTokens, moved)
 }
 
 function getTokenTimes(currentRaid, entries, guildData) {
-    const ts = Date.now() / 1000;
+    const ts = Date.now() / timeStampDivisor;
     const tsBombsAgo = ts - 18*60*60;
 
     const raidStart = currentRaid.season == 70 ? season70start : currentRaid.entries[0].startedOn-24*60*60; // Pretend we start at previous season end
