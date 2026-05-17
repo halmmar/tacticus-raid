@@ -119,7 +119,7 @@ const updateCurrentView = async function(newMode) {
             if (playerTokens[playerSelected]==undefined) {
                 playerTokens[playerSelected] = await fetchJSON(demo ? "demo/tokens.json" : `proxy.py?url=tokens&player=${playerSelected}`);
                 if (demo) {
-                    var tsNow = new Date()/1000;
+                    var tsNow = new Date()/timeStampDivisor;
                     playerTokens[playerSelected].lastUpdatedOn += tsNow - playerTokens[playerSelected].fakeCurrentTime;
                 }
             }

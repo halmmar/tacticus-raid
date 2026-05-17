@@ -382,7 +382,7 @@ async function viewPlayerStats(playerSelected, currentRaid, allSeasonRaids) {
     var tokensTable = "";
     var tokens = playerTokens[playerSelected];
     if (tokens.tokens) {
-        var tsNow = new Date()/1000;
+        var tsNow = new Date()/timeStampDivisor;
         tokensTable = `
         <table class="tokensTable">
           <caption>Tokens (<span class="${tsNow > tokens.lastUpdatedOn+2*60*60 ? "warning" : ""}">${toDateStr(tokens.lastUpdatedOn)}</span>)</caption>
@@ -770,7 +770,7 @@ function viewActivity(currentRaid, allSeasonRaids, guildData) {
         let activity = Array(24).fill(0);
         entries.forEach(e => {
             if (e.userName != member.userName) return;
-            hour = +(new Date(e.completedOn*1000).toLocaleString("en-US", {hour: '2-digit', hour12: false, timeZone: systemTimeZone}));
+            hour = +(new Date(e.completedOn*timeStampDivisor).toLocaleString("en-US", {hour: '2-digit', hour12: false, timeZone: systemTimeZone}));
             activity[hour]++;
             activityTotal[hour]++;
         });
